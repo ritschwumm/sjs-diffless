@@ -53,7 +53,7 @@ object Views {
 
 	lazy val taskItemViewEmbed:View[Vector[Task],Action,Output]	= {
 		val keyify:Task=>(String,Task)	= it => it.id.value -> it
-		keyed(taskItemEmbeddedView) contraMapModel (_ map keyify)
+		keyed(taskItemEmbeddedView)(_ map keyify)
 	}
 
 	// TODO let this use a TaskEntity
@@ -63,7 +63,7 @@ object Views {
 				actionFunc	= Action.Task.apply,
 				handleFunc	= Output.Task.apply
 			)
-			.contraMapModel { task =>
+			.adaptModel { task =>
 				task.id -> task.data
 			}
 

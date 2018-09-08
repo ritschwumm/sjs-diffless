@@ -16,7 +16,5 @@ trait views {
 	def pair[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[(M1,M2),A,H]			= View pair		(item1, item2)
 
 	def text[A,H]:View[String,A,H]															= View.text
-	@deprecated("use literal", "0.2.0")
-	def text_[M,A,H](value:String):View[M,A,H]												= View literal	value
 	def literal[M,A,H](value:String):View[M,A,H]											= View literal	value
 }

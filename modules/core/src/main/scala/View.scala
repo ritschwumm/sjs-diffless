@@ -171,7 +171,7 @@ object View {
 			}
 
 	def keyedBy[M,A,H](key:M=>ViewKey, itemView:View[M,A,H]):View[Vector[M],A,H]	=
-			keyed(itemView) contraMapModel { items =>
+			keyed(itemView) adaptModel { items =>
 				items map { item =>
 					key(item) -> item
 				}
@@ -222,20 +222,20 @@ object View {
 
 	// BETTER optimize?
 	def optional[M,A,H](item:View[M,A,H]):View[Option[M],A,H]	=
-			vector[M,A,H](item) contraMapModel (_.toVector)
+			vector[M,A,H](item) adaptModel (_.toVector)
 
 	// BETTER optimize?
 	def either[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[Either[M1,M2],A,H]	=
 			sequence(Vector(
-				optional(item1) contraMapModel (_.swap.toOption),
-				optional(item2) contraMapModel (_.toOption)
+				optional(item1) adaptModel (_.swap.toOption),
+				optional(item2) adaptModel (_.toOption)
 			))
 
 	// BETTER optimize?
 	def pair[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[(M1,M2),A,H]	=
 			sequence(Vector(
-				item1 contraMapModel (_._1),
-				item2 contraMapModel (_._2)
+				item1 adaptModel (_._1),
+				item2 adaptModel (_._2)
 			))
 
 	def text[A,H]:View[String,A,H]	=
@@ -251,10 +251,6 @@ object View {
 				}
 			}
 
-	@deprecated("use literal", "0.2.0")
-	def text_[M,A,H](value:String):View[M,A,H]	=
-			literal(value)
-
 	/** behaves like text.contraMap(constant(value)) */
 	def literal[M,A,H](value:String):View[M,A,H]	=
 			View { (initial, dispatch)	=>
@@ -269,17 +265,23 @@ object View {
 
 // NOTE could return null/None for static nodes so we don't have to update them
 final case class View[-M,+A,+H](setup:(M, A=>EventFlow) => Updater[M,H]) extends Child[Any,M,A,H] { self =>
-	def apply[MM](func:MM=>M):View[MM,A,H]	= contraMapModel(func)
+	def apply[MM](func:MM=>M):View[MM,A,H]	= adaptModel(func)
 
 	def adapt[MM,AA,HH](model:MM=>M, action:A=>AA, handle:H=>HH):View[MM,AA,HH]	=
 			View { (initial, dispatch) =>
 				setup(model(initial), action andThen dispatch) adapt (model, handle)
 			}
 
+	def adaptModelAndAction[MM,AA](model:MM=>M, action:A=>AA):View[MM,AA,H]	=
+			adapt(model, action, identity)
+
+	@deprecated("use adaptModel", "0.3.0")
+	def contraMapModel[MM](func:MM=>M):View[MM,A,H]	= adaptModel(func)
+
 	// TODO auto-cache?
-	def contraMapModel[MM](func:MM=>M):View[MM,A,H]	=
+	def adaptModel[MM](func:MM=>M):View[MM,A,H]	=
 			View { (initial, dispatch) =>
-				setup(func(initial), dispatch) contraMapModel func
+				setup(func(initial), dispatch) adaptModel func
 			}
 
 	def contextual[C,AA,HH](actionFunc:(C,A)=>AA, handleFunc:(C,H)=>HH):View[(C,M),AA,HH]	=
@@ -322,19 +324,28 @@ final case class View[-M,+A,+H](setup:(M, A=>EventFlow) => Updater[M,H]) extends
 			}
 	*/
 
-	def mapOutput[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	=
+	@deprecated("use adaptActionAndHandle", "0.3.0")
+	def mapOutput[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	= adaptActionAndHandle(action, handle)
+
+	def adaptActionAndHandle[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	=
 			View { (initial, dispatch) =>
-				setup(initial, action andThen dispatch) mapHandle handle
+				setup(initial, action andThen dispatch) adaptHandle handle
 			}
 
-	def mapAction[AA](func:A=>AA):View[M,AA,H]	=
+	@deprecated("use adaptAction", "0.3.0")
+	def mapAction[AA](func:A=>AA):View[M,AA,H]	= adaptAction(func)
+
+	def adaptAction[AA](func:A=>AA):View[M,AA,H]	=
 			View { (initial, dispatch) =>
 				self setup (initial, func andThen dispatch)
 			}
 
-	def mapHandle[HH](func:H=>HH):View[M,A,HH]	=
+	@deprecated("use adaptHandle", "0.3.0")
+	def mapHandle[HH](func:H=>HH):View[M,A,HH]	= adaptHandle(func)
+
+	def adaptHandle[HH](func:H=>HH):View[M,A,HH]	=
 			View { (initial, dispatch) =>
-				self setup (initial, dispatch) mapHandle func
+				self setup (initial, dispatch) adaptHandle func
 			}
 
 	def dropHandle:View[M,A,Nothing]	=

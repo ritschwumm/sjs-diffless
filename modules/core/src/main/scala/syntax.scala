@@ -12,7 +12,7 @@ trait syntax {
 	}
 
 	implicit class AttrKeyAttrExt[K](peer:K) {
-		def ~=[N,M,MM](func:M=>MM)(implicit ev:AttrSetter[K,N,MM]):Attr[N,M]	= Attr dynamic ev.proc contraMapModel func
+		def ~=[N,M,MM](func:M=>MM)(implicit ev:AttrSetter[K,N,MM]):Attr[N,M]	= Attr dynamic ev.proc adaptModel func
 		def :=[N,M,MM](value:MM)(implicit ev:AttrSetter[K,N,MM]):Attr[N,M]		= Attr static  (ev.proc, value)
 
 		/*

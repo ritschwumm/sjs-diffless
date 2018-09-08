@@ -21,16 +21,18 @@ object Attr {
 	def static[N,M,V](setter:(N,V)=>Unit, value:V):Attr[N,M]	=
 			Attr { (target, initial) =>
 				setter(target, value)
+				// TODO optimize - should return something ignorable by the caller
 				(value) => ()
 			}
 }
 
 final case class Attr[-N,-M](setup:(N,M) => (M => Unit)) extends Child[N,M,Nothing,Nothing] {
-	def ~=[MM](func:MM=>M):Attr[N,MM]	= contraMapModel(func)
-	def :=[MM](value:M):Attr[N,MM]		= contraMapModel(_ => value)
+	def ~=[MM](func:MM=>M):Attr[N,MM]	= adaptModel(func)
+	// TODO optimize
+	def :=[MM](value:M):Attr[N,MM]		= adaptModel(_ => value)
 
 	// TODO auto-cache?
-	def contraMapModel[MM](func:MM=>M):Attr[N,MM]	=
+	def adaptModel[MM](func:MM=>M):Attr[N,MM]	=
 			Attr { (target, initial) =>
 				func andThen setup(target, func(initial))
 			}

@@ -16,7 +16,7 @@ abstract class Updater[-M,+H] { self =>
 			}
 
 	// TODO auto-cache?
-	def contraMapModel[MM](func:MM=>M):Updater[MM,H]	=
+	def adaptModel[MM](func:MM=>M):Updater[MM,H]	=
 			new Updater[MM,H] {
 				def update(value:MM):Vector[Node]	= self update func(value)
 				def active:Vector[Node]				= self.active
@@ -36,7 +36,7 @@ abstract class Updater[-M,+H] { self =>
 			}
 	*/
 
-	def mapHandle[HH](func:H=>HH):Updater[M,HH]	=
+	def adaptHandle[HH](func:H=>HH):Updater[M,HH]	=
 			new Updater[M,HH] {
 				def update(value:M):Vector[Node]	= self update value
 				def active:Vector[Node]				= self.active
