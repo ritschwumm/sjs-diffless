@@ -11,4 +11,3 @@ trait imports
 	with setters
 	with derived
 	with emits
-	

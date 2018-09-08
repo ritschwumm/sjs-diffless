@@ -10,14 +10,14 @@ object Controller {
 					case Action.Skip	=>
 						// do nothing
 						model
-						
+
 					case Action.Boot	=>
 						// TODO ugly side effects
-					
+
 						exports collect	{ case Output.CreateText(focus) => focus } foreach runNow
-						
+
 						Persistence.load() getOrElse model
-						
+
 					case Action.Complete	=>
 						execute(model) {
 							dependent(
@@ -31,7 +31,7 @@ object Controller {
 						execute(model) {
 							Model.M.creating set text
 						}
-					
+
 					case Action.Create	=>
 						execute(model) {
 							dependent(
@@ -45,72 +45,72 @@ object Controller {
 								}
 							)
 						}
-					
+
 					case Action.Task(id, TaskAction.Skip)	=>
 						// do nothing
 						model
-						
+
 					case Action.Task(id, TaskAction.Toggle)	=>
 						execute(model) {
 							oneTask(id) >=> TaskData.M.completed lift (!_)
 						}
-					
+
 					case Action.Task(id, TaskAction.Edit) =>
 						// TODO ugly side effects
-					
+
 						// NOTE timer delay is necessary because the element is still display:none here
 						exports collect	{ case Output.Task(`id`, TaskOutput.Editor(focus)) => focus } foreach runLater
-						
+
 						execute(model) {
 							oneTask(id) lift ((TaskData.M.editing set true) andThen previewFromText)
 						}
-					
+
 					case Action.Task(id, TaskAction.Change(preview))	=>
 						execute(model) {
 							oneTask(id) >=> TaskData.M.preview set preview
 						}
-					
+
 					case Action.Task(id, TaskAction.Commit)	=>
 						execute(model) {
 							oneTask(id) lift ((TaskData.M.editing set false) andThen textFromPreview)
 						}
-					
+
 					case Action.Task(id, TaskAction.Rollback) =>
 						execute(model) {
 							oneTask(id) >=> TaskData.M.editing set false
 						}
-					
+
 					case Action.Task(id, TaskAction.Remove)	=>
 						execute(model) {
 							Model.M.tasks lift (_ filter { _.id != id })
 						}
-					
+
 					case Action.Filter(state)	=>
 						execute(model) {
 							Model.M.filter set state
 						}
-					
+
 					case Action.Clear	=>
 						execute(model) {
 							Model.M.tasks lift (_ filter { !_.data.completed })
 						}
 				}
-				
+
 		// TODO only when the model really changed
 		Persistence save next
-		
+
 		next -> EventFlow.permit
 	}
-			
+
 	private def execute(model:Model)(func:Model=>Model):Model	=
 			func(model)
-			
+
 	private val previewFromText:TaskData=>TaskData	= task => task copy (preview	= task.text)
 	private val textFromPreview:TaskData=>TaskData	= task => task copy (text		= task.preview)
-			
+
 	private def oneTask(id:TaskId):Mod[Model,TaskData]	=
 			Model.M.tasks >=> Mod.each >=> (Task.M whereId id) >=> Task.M.data
-	
+
 	private def newTask(text:String):Task	=
 			Task(
 				id		= TaskId.create(),

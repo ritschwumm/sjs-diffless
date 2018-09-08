@@ -1,7 +1,7 @@
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.1.0",
-	
+	version			:= "0.2.0",
+
 	scalaVersion	:= "2.12.6",
 	scalacOptions	++= Seq(
 		"-feature",
@@ -19,7 +19,7 @@ lazy val noTestSettings	=
 			test		:= {},
 			testQuick	:= {}
 		)
-		
+
 lazy val `sjs-diffless` =
 	(project in file("."))
 	.aggregate(
@@ -31,7 +31,7 @@ lazy val `sjs-diffless` =
 		//publish		:= {},
 		//publishLocal	:= {}
 	)
-	
+
 //------------------------------------------------------------------------------
 
 lazy val `sjs-diffless-core`	=
@@ -46,9 +46,9 @@ lazy val `sjs-diffless-core`	=
 				"org.scala-js"	%%%	"scalajs-dom"	% "0.9.6"	% "compile"
 			)
 		)
-		
+
 //------------------------------------------------------------------------------
-		
+
 lazy val appSource	= SettingKey[File]	("appSource")
 lazy val appSjs		= SettingKey[File]	("appSjs")
 lazy val appTarget	= SettingKey[File]	("appTarget")
@@ -73,7 +73,7 @@ lazy val `sjs-diffless-example`	=
 		)
 		.settings(
 			noTestSettings,
-			
+
 			appSource	:= (sourceDirectory in Compile).value / "webapp",
 			appSjs		:= crossTarget.value / "sjs",
 			appTarget	:= crossTarget.value / "webapp",
@@ -91,42 +91,42 @@ lazy val `sjs-diffless-example`	=
 							js		-> (appTarget.value / js.getName),
 							jsMap	-> (appTarget.value / jsMap.getName)
 						)
-				
+
 				// fetch static assets
 				val staticToCopy	=
 						appSource.value.allPaths ** -DirectoryFilter pair Path.rebase(appSource.value, appTarget.value)
-				
+
 				// copy together
 				streams.value.log info s"building app in ${appTarget.value}"
 				IO delete appTarget.value
 				appTarget.value mkdirs ()
 				IO copy (staticToCopy ++ jsToCopy)
-						
+
 				// BETTER return path mappings
 				appTarget.value
 			},
-			
+
 			// automatically start on import
 			scalaJSUseMainModuleInitializer := true,
-			
+
 			// NOTE somehow this was cleaner
 			//relativeSourceMaps	:= true,
 			scalaJSLinkerConfig		:= scalaJSLinkerConfig.value withRelativizeSourceMapBase Some((appSjs.value / "index.js").toURI),
-			
+
 			// final name to ensure the .map reference doesn't have to be patched later
 			artifactPath in (Compile, fastOptJS)						:= appSjs.value / "index.js",
 			artifactPath in (Compile, fullOptJS)						:= appSjs.value / "index.js",
 			artifactPath in (Compile, packageJSDependencies)			:= appSjs.value / "index-jsdeps.js",
 			artifactPath in (Compile, packageMinifiedJSDependencies)	:= appSjs.value / "index-jsdeps.min.js",
-			
+
 			watchSources	:= watchSources.value :+ Watched.WatchSource(appSource.value)
 		)
-		
+
 //------------------------------------------------------------------------------
 
 TaskKey[File]("bundle")	:=
 		(appBuild in `sjs-diffless-example`).value
-		
+
 TaskKey[Unit]("demo")	:= {
 	import java.awt.Desktop
 	import java.net.URI

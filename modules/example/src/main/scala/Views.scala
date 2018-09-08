@@ -13,14 +13,14 @@ object Views {
 				taskListView(_.visible),
 				footerView
 			)
-			
+
 	lazy val headerView:View[Model,Action,Output]	=
 			header(
 				className	:= "header",
 				completeView(_.tasks),
 				createView
 			)
-			
+
 	lazy val completeView:View[Vector[Task],Action,Output]	=
 			input(
 				className	:= "complete",
@@ -29,7 +29,7 @@ object Views {
 				checked		~= (_ forall (_.data.completed)),
 				onInput		|= { (target, event) => Action.Complete }
 			)
-			
+
 	lazy val createView:View[Model,Action,Output]	=
 			input(
 				className	:= "create",
@@ -44,18 +44,18 @@ object Views {
 					)
 				}
 			)
-			
+
 	lazy val taskListView:View[Vector[Task],Action,Output]	=
 			ul(
 				className	:= "task-list",
 				taskItemViewEmbed
 			)
-			
+
 	lazy val taskItemViewEmbed:View[Vector[Task],Action,Output]	= {
 		val keyify:Task=>(String,Task)	= it => it.id.value -> it
 		keyed(taskItemEmbeddedView) contraMapModel (_ map keyify)
 	}
-	
+
 	// TODO let this use a TaskEntity
 	lazy val taskItemEmbeddedView:View[Task,Action,Output]	=
 			taskItemView
@@ -66,7 +66,7 @@ object Views {
 			.contraMapModel { task =>
 				task.id -> task.data
 			}
-		
+
 	// TODO let this use a TaskData
 	lazy val taskItemView:View[TaskData,TaskAction,TaskOutput]	=
 			li(
@@ -92,7 +92,7 @@ object Views {
 					className	:= "task-item-remove",
 					display		~= (!_.editing),
 					onClick		|= { (target, event) => TaskAction.Remove },
-					text_("🗙")
+					literal("🗙")
 				),
 				input(
 					className	:= "task-item-editor",
@@ -113,7 +113,7 @@ object Views {
 					}
 				)
 			)
-			
+
 	lazy val footerView:View[Model,Action,Output]	=
 			footer(
 				className	:= "footer",
@@ -122,20 +122,20 @@ object Views {
 				filterListView(_.filter),
 				clearView(_.hasCompleted)
 			)
-			
+
 	lazy val countView:View[Int,Action,Output]	=
 			div(
 				className	:= "count",
 				strong(
 					text(_.toString)
 				),
-				text_(" "),
+				literal(" "),
 				text(it =>
 					if (it == 1) "item" else "items"
 				),
-				text_(" left")
+				literal(" left")
 			)
-			
+
 	lazy val filterListView:View[Option[Boolean],Action,Output]	=
 			div(
 				className	:= "filter-list",
@@ -143,7 +143,7 @@ object Views {
 				filterItemView("active",	Some(false)),
 				filterItemView("completed",	Some(true))
 			)
-			
+
 	def filterItemView(labelText:String, state:Option[Boolean]):View[Option[Boolean],Action,Output]	=
 			label(
 				className	:= "filter-item",
@@ -152,14 +152,14 @@ object Views {
 					checked	~= (_ == state),
 					onInput	|= { (target, event) => Action.Filter(state) }
 				),
-				text_(labelText)
+				literal(labelText)
 			)
-			
+
 	lazy val clearView:View[Boolean,Action,Output]	=
 			button(
 				className	:= "clear",
 				visible		~= identity,
 				onClick		|= { (target, event) => Action.Clear },
-				text_("clear completed")
+				literal("clear completed")
 			)
 }

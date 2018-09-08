@@ -10,6 +10,6 @@ object Mod {
 
 final case class Mod[S,T](lift:(T=>T)=>(S=>S)) {
 	def >=>[U](that:Mod[T,U]):Mod[S,U]	= Mod(this.lift compose that.lift)
-	
+
 	def set(it:T):S=>S	= lift(constant(it))
 }

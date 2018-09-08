@@ -203,7 +203,7 @@ trait setters extends attrs {
 	// TODO hack: as download is experimental, it's not in the API as a property yet
 	implicit val HTMLAnchorElement_download				= AttrSetter[download.type,				HTMLAnchorElement,		String]								(_ setAttribute ("download", _))
 
-		
+
 	implicit val HTMLParamElement_value					= AttrSetter[value.type,				HTMLParamElement,		String]								(_.value	= _)
 	implicit val HTMLParamElement_name					= AttrSetter[name.type,					HTMLParamElement,		String]								(_.name	= _)
 

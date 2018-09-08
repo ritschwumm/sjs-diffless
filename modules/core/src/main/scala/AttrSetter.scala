@@ -1,5 +1,5 @@
 package sjs.diffless
-	
+
 /**
  * type class to associate an attribute name with its setter
  * this is necessary because one and the same attribute name can belong

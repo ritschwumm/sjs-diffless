@@ -7,14 +7,14 @@ abstract class Updater[-M,+H] { self =>
 	def update(value:M):Vector[Node]
 	def active:Vector[Node]
 	def handle:Vector[H]
-	
+
 	def adapt[MM,HH](modelFunc:MM=>M, handleFunc:H=>HH):Updater[MM,HH]	=
 			new Updater[MM,HH] {
 				def update(value:MM):Vector[Node]	= self update modelFunc(value)
 				def active:Vector[Node]				= self.active
 				def handle:Vector[HH]				= self.handle map handleFunc
 			}
-	
+
 	// TODO auto-cache?
 	def contraMapModel[MM](func:MM=>M):Updater[MM,H]	=
 			new Updater[MM,H] {
@@ -22,7 +22,7 @@ abstract class Updater[-M,+H] { self =>
 				def active:Vector[Node]				= self.active
 				def handle:Vector[H]				= self.handle
 			}
-			
+
 	/*
 	def contextHandle[MM<:M,HH](initial:MM, func:(MM,H)=>HH):Updater[MM,HH]	=
 			new Updater[MM,HH] {
@@ -35,14 +35,30 @@ abstract class Updater[-M,+H] { self =>
 				def handle:Vector[HH]				= self.handle map { it => func(model, it) }
 			}
 	*/
-	
+
 	def mapHandle[HH](func:H=>HH):Updater[M,HH]	=
 			new Updater[M,HH] {
 				def update(value:M):Vector[Node]	= self update value
 				def active:Vector[Node]				= self.active
 				def handle:Vector[HH]				= self.handle map func
 			}
-	
+
+	def dropHandle:Updater[M,Nothing]	=
+			new Updater[M,Nothing] {
+				def update(value:M):Vector[Node]	= self update value
+				def active:Vector[Node]				= self.active
+				def handle:Vector[Nothing]			= Vector.empty
+			}
+
+	/*
+	def modifyHandles[HH](func:Vector[H]=>Vector[HH]):Updater[M,HH]	=
+			new Updater[M,HH] {
+				def update(value:M):Vector[Node]	= self update value
+				def active:Vector[Node]				= self.active
+				def handle:Vector[HH]				= func(self.handle)
+			}
+	*/
+
 	def caching(initial:M):Updater[M,H]	=
 			new Updater[M,H] {
 				var old		= initial
