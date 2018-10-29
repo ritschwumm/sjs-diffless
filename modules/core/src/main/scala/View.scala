@@ -62,7 +62,7 @@ object View {
 								val todo	= innerUpdater.active
 								var ptr		= node.firstChild
 								todo foreach { childNode =>
-									if (childNode == ptr) {
+									if (childNode eq ptr) {
 										ptr	= ptr.nextSibling
 									}
 									else {
@@ -106,7 +106,7 @@ object View {
 
 					private var old	= initial
 
-					def update(value:M):Vector[Node]	= {
+					def update(value:M):Vector[Node]	=
 							if (value != old) {
 								old	= value
 
@@ -118,7 +118,6 @@ object View {
 							else {
 								Vector.empty
 							}
-					}
 				}
 			}
 
@@ -226,17 +225,17 @@ object View {
 
 	// BETTER optimize?
 	def either[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[Either[M1,M2],A,H]	=
-			sequence(Vector(
+			vararg(
 				optional(item1) adaptModel (_.swap.toOption),
 				optional(item2) adaptModel (_.toOption)
-			))
+			)
 
 	// BETTER optimize?
 	def pair[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[(M1,M2),A,H]	=
-			sequence(Vector(
+			vararg(
 				item1 adaptModel (_._1),
 				item2 adaptModel (_._2)
-			))
+			)
 
 	def text[A,H]:View[String,A,H]	=
 			View { (initial, dispatch)	=>
@@ -275,9 +274,6 @@ final case class View[-M,+A,+H](setup:(M, A=>EventFlow) => Updater[M,H]) extends
 	def adaptModelAndAction[MM,AA](model:MM=>M, action:A=>AA):View[MM,AA,H]	=
 			adapt(model, action, identity)
 
-	@deprecated("use adaptModel", "0.3.0")
-	def contraMapModel[MM](func:MM=>M):View[MM,A,H]	= adaptModel(func)
-
 	// TODO auto-cache?
 	def adaptModel[MM](func:MM=>M):View[MM,A,H]	=
 			View { (initial, dispatch) =>
@@ -302,7 +298,7 @@ final case class View[-M,+A,+H](setup:(M, A=>EventFlow) => Updater[M,H]) extends
 			}
 
 	/*
-	def contextAction[MM<:M,AA](func:(MM,A)=>AA):View[MM,AA,H]	=
+	def contextualAction[MM<:M,AA](func:(MM,A)=>AA):View[MM,AA,H]	=
 			View { (initial, dispatch) =>
 				new Updater[MM,H] {
 					private var model			= initial
@@ -318,30 +314,21 @@ final case class View[-M,+A,+H](setup:(M, A=>EventFlow) => Updater[M,H]) extends
 				}
 			}
 
-	def contextHandle[MM<:M,HH](func:(MM,H)=>HH):View[MM,A,HH]	=
+	def contextualHandle[MM<:M,HH](func:(MM,H)=>HH):View[MM,A,HH]	=
 			View { (initial, dispatch) =>
 				self setup (initial, dispatch) contextHandle (initial, func)
 			}
 	*/
-
-	@deprecated("use adaptActionAndHandle", "0.3.0")
-	def mapOutput[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	= adaptActionAndHandle(action, handle)
 
 	def adaptActionAndHandle[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	=
 			View { (initial, dispatch) =>
 				setup(initial, action andThen dispatch) adaptHandle handle
 			}
 
-	@deprecated("use adaptAction", "0.3.0")
-	def mapAction[AA](func:A=>AA):View[M,AA,H]	= adaptAction(func)
-
 	def adaptAction[AA](func:A=>AA):View[M,AA,H]	=
 			View { (initial, dispatch) =>
 				self setup (initial, func andThen dispatch)
 			}
-
-	@deprecated("use adaptHandle", "0.3.0")
-	def mapHandle[HH](func:H=>HH):View[M,A,HH]	= adaptHandle(func)
 
 	def adaptHandle[HH](func:H=>HH):View[M,A,HH]	=
 			View { (initial, dispatch) =>
@@ -381,14 +368,17 @@ final case class View[-M,+A,+H](setup:(M, A=>EventFlow) => Updater[M,H]) extends
 					if (value != old) {
 						old	= value
 
+						// update content
 						val innerExpired	= innerUpdater update value
 
+						// remove vanished child nodes
 						innerExpired foreach node.removeChild
 
+						// insert nodes in order, skip over existing ones
 						val todo	= innerUpdater.active
 						var ptr		= node.firstChild
 						todo foreach { childNode =>
-							if (childNode == ptr) {
+							if (childNode eq ptr) {
 								ptr	= ptr.nextSibling
 							}
 							else {

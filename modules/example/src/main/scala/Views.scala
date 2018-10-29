@@ -85,19 +85,19 @@ object Views {
 						(if (task.completed) Set("task-item-text-completed") else Set.empty[String]) +
 						"task-item-text"
 					},
-					display		~= (!_.editing),
+					displayed	~= (!_.editing),
 					text(_.text)
 				),
 				button(
 					className	:= "task-item-remove",
-					display		~= (!_.editing),
+					displayed	~= (!_.editing),
 					onClick		|= { (target, event) => TaskAction.Remove },
 					literal("🗙")
 				),
 				input(
 					className	:= "task-item-editor",
 					`type`		:= "text",
-					display		~= (_.editing),
+					displayed	~= (_.editing),
 					value		~= (_.preview),
 					onInput		|= { (target, event) => TaskAction.Change(target.value)	},
 					onBlur		|= { (target, event) => TaskAction.Commit				},
@@ -117,7 +117,7 @@ object Views {
 	lazy val footerView:View[Model,Action,Output]	=
 			footer(
 				className	:= "footer",
-				display		~= (_.tasks.nonEmpty),
+				displayed	~= (_.tasks.nonEmpty),
 				countView(_.incompleteCount),
 				filterListView(_.filter),
 				clearView(_.hasCompleted)

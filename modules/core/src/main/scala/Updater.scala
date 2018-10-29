@@ -24,7 +24,7 @@ abstract class Updater[-M,+H] { self =>
 			}
 
 	/*
-	def contextHandle[MM<:M,HH](initial:MM, func:(MM,H)=>HH):Updater[MM,HH]	=
+	def contextualHandle[MM<:M,HH](initial:MM, func:(MM,H)=>HH):Updater[MM,HH]	=
 			new Updater[MM,HH] {
 				var model:MM	= initial
 				def update(value:MM):Vector[Node]	= {
