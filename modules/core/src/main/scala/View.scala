@@ -29,7 +29,7 @@ object View {
 
 					// BETTER filter out static attributes, no need to update them
 					private val attrUpdates:Vector[M=>Unit]	=
-							attrs map { attr =>
+							attrs flatMap { attr =>
 								attr setup (node, initial)
 							}
 

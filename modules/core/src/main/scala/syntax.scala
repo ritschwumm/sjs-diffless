@@ -16,7 +16,7 @@ trait syntax {
 		def :=[N,M,MM](value:MM)(implicit ev:AttrSetter[K,N,MM]):Attr[N,M]		= Attr static  (ev.proc, value)
 
 		/*
-		this leads to ambiguous implicits
+		sadly, this leads to ambiguous implicits
 		def apply[N,M,A](implicit ev:AttrSetter[K,N,M]):Attr[N,M]	= Attr dynamic ev.proc
 		*/
 	}
