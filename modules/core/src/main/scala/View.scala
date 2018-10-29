@@ -9,23 +9,23 @@ object View {
 		val attrs:Vector[Attr[N,M]]		= children collect { case x:Attr[N,M]	=> x }
 		val emits:Vector[Emit[N,A]]		= children collect { case x:Emit[N,A]	=> x }
 		val inners:Vector[View[M,A,H]]	= children collect { case x:View[M,A,H]	=> x }
-		val handles:Vector[Handle[N,H]]	= children collect { case x:Handle[N,H]	=> x }
+		val grafts:Vector[Graft[N,H]]	= children collect { case x:Graft[N,H]	=> x }
 		element(
 			tag		= tag,
 			attrs	= attrs,
 			emits	= emits,
 			inner	= sequence(inners),
-			handles	= handles
+			grafts	= grafts
 		)
 	}
 
 	// NOTE maybe converting attrs to an array would make sense here
-	def element[N<:Node,M,A,H](tag:Tag[N], attrs:Vector[Attr[N,M]], emits:Vector[Emit[N,A]], inner:View[M,A,H], handles:Vector[Handle[N,H]]):View[M,A,H] =
+	def element[N<:Node,M,A,H](tag:Tag[N], attrs:Vector[Attr[N,M]], emits:Vector[Emit[N,A]], inner:View[M,A,H], grafts:Vector[Graft[N,H]]):View[M,A,H] =
 			View { (initial, dispatch)	=>
 				new Updater[M,H] {
 					private val node	= tag.create()
 
-					var selfHandle:Vector[H]	= handles map (_ create node)
+					var selfHandles:Vector[H]	= grafts map (_ create node)
 
 					// BETTER filter out static attributes, no need to update them
 					private val attrUpdates:Vector[M=>Unit]	=
@@ -47,7 +47,7 @@ object View {
 							if (value != old) {
 								old	= value
 
-								selfHandle	= handles map (_ create node)
+								selfHandles	= grafts map (_ create node)
 
 								// update attributes
 								attrUpdates foreach (_ apply value)
@@ -70,7 +70,7 @@ object View {
 									}
 								}
 
-								handle	= selfHandle ++ innerUpdater.handle
+								handles	= selfHandles ++ innerUpdater.handles
 								Vector.empty
 							}
 							else {
@@ -78,7 +78,7 @@ object View {
 							}
 
 					val active:Vector[Node]		= Vector(node)
-					var handle:Vector[H]		= selfHandle ++ innerUpdater.handle
+					var handles:Vector[H]		= selfHandles ++ innerUpdater.handles
 				}
 			}
 
@@ -87,7 +87,7 @@ object View {
 				new Updater[M,H] {
 					def update(value:M):Vector[Node]	= Vector.empty
 					val active:Vector[Node]				= Vector.empty
-					val handle:Vector[H]				= Vector.empty
+					val handles:Vector[H]				= Vector.empty
 				}
 			}
 
@@ -102,7 +102,7 @@ object View {
 					private val childUpdaters:Vector[Updater[M,H]]	= children map (_ setup (initial, dispatch))
 
 					var active:Vector[Node]	= childUpdaters flatMap (_.active)
-					var handle:Vector[H]	= childUpdaters flatMap (_.handle)
+					var handles:Vector[H]	= childUpdaters flatMap (_.handles)
 
 					private var old	= initial
 
@@ -112,7 +112,7 @@ object View {
 
 								val expired	= childUpdaters flatMap (_ update value)
 								active	= childUpdaters flatMap (_.active)
-								handle	= childUpdaters flatMap (_.handle)
+								handles	= childUpdaters flatMap (_.handles)
 								expired
 							}
 							else {
@@ -127,7 +127,7 @@ object View {
 					private var childUpdaters:Vector[Updater[M,H]]	= initial map { it => item setup (it, dispatch) }
 
 					var active:Vector[Node]	= childUpdaters flatMap (_.active)
-					var handle:Vector[H]	= childUpdaters flatMap (_.handle)
+					var handles:Vector[H]	= childUpdaters flatMap (_.handles)
 
 					private var old	= initial
 
@@ -143,7 +143,7 @@ object View {
 									val fresh	= (oldSize until newSize).toVector map { idx => item setup (value(idx), dispatch) }
 									childUpdaters	++= fresh
 									active	= childUpdaters flatMap (_.active)
-									handle	= childUpdaters flatMap (_.handle)
+									handles	= childUpdaters flatMap (_.handles)
 									expired
 								}
 								else if (newSize < oldSize) {
@@ -152,14 +152,14 @@ object View {
 									childUpdaters	= keep
 									val expired	= (childUpdaters zip value) flatMap { case (u,v) => u update v }
 									active	= childUpdaters flatMap (_.active)
-									handle	= childUpdaters flatMap (_.handle)
+									handles	= childUpdaters flatMap (_.handles)
 									expired	++ (remove flatMap (_.active))
 								}
 								else {
 									// no size change
 									val expired	= (childUpdaters zip value) flatMap { case (u,v) => u update v }
 									active	= childUpdaters flatMap (_.active)
-									handle	= childUpdaters flatMap (_.handle)
+									handles	= childUpdaters flatMap (_.handles)
 									expired
 								}
 							}
@@ -182,7 +182,7 @@ object View {
 					private var childOuts:Vector[(ViewKey,Updater[M,H])]	= initial map { case (k,v) => k -> (item setup (v, dispatch)) }
 
 					var active:Vector[Node]	= childOuts flatMap { case (_, updater) => updater.active }
-					var handle:Vector[H]	= childOuts flatMap { case (_, updater) => updater.handle }
+					var handles:Vector[H]	= childOuts flatMap { case (_, updater) => updater.handles }
 
 					private var old:Vector[(ViewKey,M)]	= initial
 
@@ -209,7 +209,7 @@ object View {
 										}
 
 								active	= childOuts flatMap { case (_, updater) => updater.active }
-								handle	= childOuts flatMap { case (_, updater) => updater.handle }
+								handles	= childOuts flatMap { case (_, updater) => updater.handles }
 
 								expired
 							}
@@ -246,7 +246,7 @@ object View {
 						Vector.empty
 					}
 					val active:Vector[Node]	= Vector(node)
-					val handle:Vector[H]	= Vector.empty
+					val handles:Vector[H]	= Vector.empty
 				}
 			}
 
@@ -257,7 +257,7 @@ object View {
 					private val node	= document createTextNode value
 					def update(value:M):Vector[Node]	= Vector.empty
 					val active:Vector[Node]				= Vector(node)
-					val handle:Vector[H]				= Vector.empty
+					val handles:Vector[H]				= Vector.empty
 				}
 			}
 }
@@ -293,7 +293,7 @@ final case class View[-M,+A,+H](setup:(M, A=>EventFlow) => Updater[M,H]) extends
 						innerUpdater update value._2
 					}
 					def active:Vector[Node]	= innerUpdater.active
-					def handle:Vector[HH]	= innerUpdater.handle map { handle => handleFunc(context, handle) }
+					def handles:Vector[HH]	= innerUpdater.handles map { handle => handleFunc(context, handle) }
 				}
 			}
 
@@ -386,9 +386,9 @@ final case class View[-M,+A,+H](setup:(M, A=>EventFlow) => Updater[M,H]) extends
 							}
 						}
 					}
-					innerUpdater.handle
+					innerUpdater.handles
 				}
 
-		innerUpdater.handle -> update
+		innerUpdater.handles -> update
 	}
 }

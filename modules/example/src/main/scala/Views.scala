@@ -38,7 +38,7 @@ object Views {
 				value		~= (_.creating),
 				onInput		|= { (target, event) => Action.Creating(target.value)							},
 				onKeyUp		|= { (target, event) => if (event.key == "Enter") Action.Create else Action.Skip	},
-				Handle { target =>
+				Graft { target =>
 					Output.CreateText(
 						focus	= () => target.focus()
 					)
@@ -106,7 +106,7 @@ object Views {
 						else if (event.key == "Escape")	TaskAction.Rollback
 						else							TaskAction.Skip
 					},
-					Handle { target =>
+					Graft { target =>
 						TaskOutput.Editor(
 							() => target.focus()
 						)
