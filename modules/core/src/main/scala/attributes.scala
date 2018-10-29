@@ -1,8 +1,8 @@
 package sjs.diffless
 
-object attrs extends attrs
+object attributes extends attributes
 
-trait attrs {
+trait attributes {
 	object accept
 	object acceptCharset
 	object accessKey

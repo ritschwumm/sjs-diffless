@@ -5,12 +5,12 @@ import org.scalajs.dom.raw._
 object derived extends derived
 
 trait derived {
-	val displayed:Attr[HTMLElement,Boolean]	=
-			Attr dynamic[HTMLElement,Boolean]		{ (node, value) => node.style.display		= if (value) "" else "none" }
+	val displayed:Attribute[HTMLElement,Boolean]	=
+			Attribute dynamic[HTMLElement,Boolean]		{ (node, value) => node.style.display		= if (value) "" else "none" }
 
-	val visible:Attr[HTMLElement,Boolean]	=
-			Attr dynamic[HTMLElement,Boolean]		{ (node, value) => node.style.visibility	= if (value) "" else "hidden" }
+	val visible:Attribute[HTMLElement,Boolean]	=
+			Attribute dynamic[HTMLElement,Boolean]		{ (node, value) => node.style.visibility	= if (value) "" else "hidden" }
 
-	val classSet:Attr[HTMLElement,Set[String]]	=
-			Attr dynamic[HTMLElement,Set[String]]	{ (node, value) => node.className			= value mkString " " }
+	val classSet:Attribute[HTMLElement,Set[String]]	=
+			Attribute dynamic[HTMLElement,Set[String]]	{ (node, value) => node.className			= value mkString " " }
 }

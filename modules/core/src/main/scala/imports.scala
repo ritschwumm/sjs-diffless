@@ -7,7 +7,7 @@ trait imports
 	with views
 	with grafts
 	with tags
-	with attrs
+	with attributes
 	with setters
 	with derived
 	with emits

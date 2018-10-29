@@ -5,4 +5,4 @@ package sjs.diffless
  * this is necessary because one and the same attribute name can belong
  * to different types of elements and attribute values
  */
-final case class AttrSetter[K,-N,-M](proc:(N,M)=>Unit)
+final case class AttributeSetter[K,-N,-M](proc:(N,M)=>Unit)

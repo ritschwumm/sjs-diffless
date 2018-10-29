@@ -4,7 +4,7 @@ object EventFlow {
 	val permit	=
 			EventFlow(
 				EventDefaultAction.Permit,
-				EventPropagation.Permit
+				EventPropagation.Propagate
 			)
 }
 

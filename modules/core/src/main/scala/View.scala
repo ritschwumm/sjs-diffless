@@ -6,30 +6,30 @@ import sjs.diffless.dom._
 
 object View {
 	def elementFromChildren[N<:Node,M,A,H](tag:Tag[N], children:Vector[Child[N,M,A,H]]):View[M,A,H] = {
-		val attrs:Vector[Attr[N,M]]		= children collect { case x:Attr[N,M]	=> x }
-		val emits:Vector[Emit[N,A]]		= children collect { case x:Emit[N,A]	=> x }
-		val inners:Vector[View[M,A,H]]	= children collect { case x:View[M,A,H]	=> x }
-		val grafts:Vector[Graft[N,H]]	= children collect { case x:Graft[N,H]	=> x }
+		val attributes:Vector[Attribute[N,M]]	= children collect { case x:Attribute[N,M]	=> x }
+		val emits:Vector[Emit[N,A]]				= children collect { case x:Emit[N,A]		=> x }
+		val inners:Vector[View[M,A,H]]			= children collect { case x:View[M,A,H]		=> x }
+		val grafts:Vector[Graft[N,H]]			= children collect { case x:Graft[N,H]		=> x }
 		element(
-			tag		= tag,
-			attrs	= attrs,
-			emits	= emits,
-			inner	= sequence(inners),
-			grafts	= grafts
+			tag			= tag,
+			attributes	= attributes,
+			emits		= emits,
+			inner		= sequence(inners),
+			grafts		= grafts
 		)
 	}
 
 	// NOTE maybe converting attrs to an array would make sense here
-	def element[N<:Node,M,A,H](tag:Tag[N], attrs:Vector[Attr[N,M]], emits:Vector[Emit[N,A]], inner:View[M,A,H], grafts:Vector[Graft[N,H]]):View[M,A,H] =
+	def element[N<:Node,M,A,H](tag:Tag[N], attributes:Vector[Attribute[N,M]], emits:Vector[Emit[N,A]], inner:View[M,A,H], grafts:Vector[Graft[N,H]]):View[M,A,H] =
 			View { (initial, dispatch)	=>
 				new Updater[M,H] {
 					private val node	= tag.create()
 
-					var selfHandles:Vector[H]	= grafts map (_ create node)
+					val selfHandles:Vector[H]	= grafts map (_ create node)
 
 					// BETTER filter out static attributes, no need to update them
-					private val attrUpdates:Vector[M=>Unit]	=
-							attrs flatMap { attr =>
+					private val attributeUpdates:Vector[M=>Unit]	=
+							attributes flatMap { attr =>
 								attr setup (node, initial)
 							}
 
@@ -47,10 +47,8 @@ object View {
 							if (value != old) {
 								old	= value
 
-								selfHandles	= grafts map (_ create node)
-
 								// update attributes
-								attrUpdates foreach (_ apply value)
+								attributeUpdates foreach (_ apply value)
 
 								// update content
 								val innerExpired	= innerUpdater update value

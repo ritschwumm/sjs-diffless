@@ -20,7 +20,7 @@ object Emit {
 							case EventDefaultAction.Prevent		=> ev.preventDefault()
 						}
 						propagation match {
-							case EventPropagation.Permit		=>
+							case EventPropagation.Propagate		=>
 							case EventPropagation.Stop			=> ev.stopPropagation()
 							case EventPropagation.StopImmediate	=> ev.stopImmediatePropagation()
 						}
