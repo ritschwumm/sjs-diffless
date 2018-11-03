@@ -447,12 +447,23 @@ extends Child[Any,M,A,H] { self =>
 			}
 			else this
 
+	/** ignores its model completely */
 	def static(value:M):View[Any,A,H]	=
 			View(
 				requiresUpdates	= false,
 				instableNodes	= false,
 				setup	= (initial, dispatch) => {
 					setup(value, dispatch).static
+				}
+			)
+
+	/** ignores after-init changes when the liveness flag is false */
+	def undead:View[(Boolean,M),A,H]	=
+			View(
+				requiresUpdates	= requiresUpdates,
+				instableNodes	= instableNodes,
+				setup	= (initial, dispatch) => {
+					setup(initial._2, dispatch).undead
 				}
 			)
 
