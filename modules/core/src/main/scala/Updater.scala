@@ -76,4 +76,11 @@ abstract class Updater[-M,+H] { self =>
 							Vector.empty
 						}
 			}
+
+	def static:Updater[Any,H]	=
+			new Updater[Any,H] {
+				def update(value:Any):Vector[Node]	= Vector.empty
+				val active:Vector[Node]				= self.active
+				val handles:Vector[H]				= self.handles
+			}
 }

@@ -447,6 +447,15 @@ extends Child[Any,M,A,H] { self =>
 			}
 			else this
 
+	def static(value:M):View[Any,A,H]	=
+			View(
+				requiresUpdates	= false,
+				instableNodes	= false,
+				setup	= (initial, dispatch) => {
+					setup(value, dispatch).static
+				}
+			)
+
 	def attach(node:Node, initial:M, dispatch:A=>EventFlow):(Vector[H], M=>Vector[H])	= {
 		while (node.firstChild != null) {
 			node removeChild node.firstChild
