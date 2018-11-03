@@ -84,13 +84,11 @@ abstract class Updater[-M,+H] { self =>
 				val handles:Vector[H]				= self.handles
 			}
 
-	def undead:Updater[(Boolean,M),H]	=
-			new Updater[(Boolean,M),H] {
-				def update(value:(Boolean,M)):Vector[Node]	=
-						value match {
-							case (true,		x)	=> self update x
-							case (false,	_)	=> Vector.empty
-						}
+	def lively[MM](alive:MM=>Boolean, func:MM=>M):Updater[MM,H]	=
+			new Updater[MM,H] {
+				def update(value:MM):Vector[Node]	=
+						if (alive(value))	self update func(value)
+						else				Vector.empty
 				def active:Vector[Node]	= self.active
 				def handles:Vector[H]	= self.handles
 			}

@@ -457,13 +457,13 @@ extends Child[Any,M,A,H] { self =>
 				}
 			)
 
-	/** ignores after-init changes when the liveness flag is false */
-	def undead:View[(Boolean,M),A,H]	=
+	/** ignores after-init changes when the alive-predicate is false */
+	def lively[MM](alive:MM=>Boolean, func:MM=>M):View[MM,A,H]	=
 			View(
 				requiresUpdates	= requiresUpdates,
 				instableNodes	= instableNodes,
 				setup	= (initial, dispatch) => {
-					setup(initial._2, dispatch).undead
+					setup(func(initial), dispatch) lively (alive, func)
 				}
 			)
 
