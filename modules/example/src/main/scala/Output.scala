@@ -5,4 +5,5 @@ object Output {
 	final case class Task(id:TaskId, sub:TaskOutput)	extends Output
 }
 
+/** DOM node markers when we have to call back into the node */
 sealed trait Output

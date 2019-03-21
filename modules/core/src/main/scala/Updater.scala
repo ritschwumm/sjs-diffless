@@ -2,6 +2,7 @@ package sjs.diffless
 
 import org.scalajs.dom.raw._
 
+/** updates zero or more DOM nodes when the model changes */
 abstract class Updater[-M,+H] { self =>
 	/** returns expired nodes */
 	def update(value:M):Vector[Node]

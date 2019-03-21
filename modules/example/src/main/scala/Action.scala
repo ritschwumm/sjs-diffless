@@ -14,4 +14,5 @@ object Action {
 	final case object	Clear								extends Action
 }
 
+/** sum type encompassing every action the user can request */
 sealed trait Action

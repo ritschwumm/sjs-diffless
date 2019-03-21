@@ -8,6 +8,7 @@ object EventFlow {
 			)
 }
 
+/** what to do after an event has been dealt with */
 final case class EventFlow(
 	defaultAction:EventDefaultAction,
 	propagation:EventPropagation

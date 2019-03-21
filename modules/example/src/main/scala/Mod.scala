@@ -8,6 +8,7 @@ object Mod {
 	def each[T]:Mod[Vector[T],T]			= Mod(func => _ map func)
 }
 
+/** a sad excuse for real optics - but sufficient for our purposes */
 final case class Mod[S,T](lift:(T=>T)=>(S=>S)) {
 	def >=>[U](that:Mod[T,U]):Mod[S,U]	= Mod(this.lift compose that.lift)
 

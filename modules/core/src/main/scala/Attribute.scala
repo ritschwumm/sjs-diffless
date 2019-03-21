@@ -35,6 +35,7 @@ object Attribute {
 	val ignoring:Any=>Unit	= _ => sys error "unexpectedly tried to update an attribute"
 }
 
+/** tells an element to set one of its attribute values and keep it up-to-date */
 final case class Attribute[-N,-M](
 	requiresUpdates:Boolean,
 	// if requiresUpdates is false, the function returned here will not be called

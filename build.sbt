@@ -1,8 +1,8 @@
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.11.0",
+	version			:= "0.12.0",
 
-	scalaVersion	:= "2.12.7",
+	scalaVersion	:= "2.12.8",
 	scalacOptions	++= Seq(
 		"-feature",
 		"-deprecation",
@@ -56,10 +56,10 @@ lazy val appBuild	= TaskKey[File]		("appBuild")
 
 val jsCompiler	=
 		Def.taskDyn {
-			fastOptJS in Compile
+			Compile / fastOptJS
 			/*
-			if (development.value)	fastOptJS in Compile
-			else					fullOptJS in Compile
+			if (development.value)	Compile / fastOptJS
+			else					Compile / fullOptJS
 			*/
 		}
 
@@ -74,7 +74,7 @@ lazy val `sjs-diffless-example`	=
 		.settings(
 			noTestSettings,
 
-			appSource	:= (sourceDirectory in Compile).value / "webapp",
+			appSource	:= (Compile / sourceDirectory).value / "webapp",
 			appSjs		:= crossTarget.value / "sjs",
 			appTarget	:= crossTarget.value / "webapp",
 			appBuild	:= {
@@ -114,10 +114,10 @@ lazy val `sjs-diffless-example`	=
 			scalaJSLinkerConfig		:= scalaJSLinkerConfig.value withRelativizeSourceMapBase Some((appSjs.value / "index.js").toURI),
 
 			// final name to ensure the .map reference doesn't have to be patched later
-			artifactPath in (Compile, fastOptJS)						:= appSjs.value / "index.js",
-			artifactPath in (Compile, fullOptJS)						:= appSjs.value / "index.js",
-			artifactPath in (Compile, packageJSDependencies)			:= appSjs.value / "index-jsdeps.js",
-			artifactPath in (Compile, packageMinifiedJSDependencies)	:= appSjs.value / "index-jsdeps.min.js",
+			Compile / fastOptJS						/ artifactPath	:= appSjs.value / "index.js",
+			Compile / fullOptJS						/ artifactPath	:= appSjs.value / "index.js",
+			Compile / packageJSDependencies			/ artifactPath	:= appSjs.value / "index-jsdeps.js",
+			Compile / packageMinifiedJSDependencies	/ artifactPath	:= appSjs.value / "index-jsdeps.min.js",
 
 			watchSources	:= watchSources.value :+ Watched.WatchSource(appSource.value)
 		)
@@ -125,13 +125,13 @@ lazy val `sjs-diffless-example`	=
 //------------------------------------------------------------------------------
 
 TaskKey[File]("bundle")	:=
-		(appBuild in `sjs-diffless-example`).value
+		(`sjs-diffless-example` / appBuild).value
 
 TaskKey[Unit]("demo")	:= {
 	import java.awt.Desktop
 	import java.net.URI
 	val log		= streams.value.log
-	val file	= (appBuild in `sjs-diffless-example`).value / "index.html"
+	val file	= (`sjs-diffless-example` / appBuild).value / "index.html"
 	if (Desktop.isDesktopSupported) {
 		log info s"opening $file"
 		Desktop.getDesktop browse file.toURI

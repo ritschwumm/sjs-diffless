@@ -4,9 +4,8 @@ import org.scalajs.dom.raw._
 
 object emits extends emits
 
+/** event emitters - prefer these over plain attribute setters */
 trait emits {
-	// TODO complete these
-
 	def onCopy				[N<:Element]:Emit.EmitBuilder[N,ClipboardEvent]		= Emit emitBuilder (_.oncopy	= _)
 	def onCut				[N<:Element]:Emit.EmitBuilder[N,ClipboardEvent]		= Emit emitBuilder (_.oncut	= _)
 	def onPaste				[N<:Element]:Emit.EmitBuilder[N,ClipboardEvent]		= Emit emitBuilder (_.onpaste	= _)

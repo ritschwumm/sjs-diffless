@@ -4,6 +4,7 @@ import org.scalajs.dom.raw._
 
 object tags extends tags
 
+/** Tag values for all HTML tags */
 trait tags {
 	val a			:Tag[HTMLAnchorElement]				= Tag[HTMLAnchorElement]("a")
 	val abbr		:Tag[HTMLElement]					= Tag[HTMLElement]("abbr")

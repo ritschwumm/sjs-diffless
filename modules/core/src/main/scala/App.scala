@@ -3,6 +3,7 @@ package sjs.diffless
 import org.scalajs.dom.raw._
 
 object App {
+	/** a simple way to start up an application */
 	def start[M,A,H](container:HTMLElement, initial:M, view:View[M,A,H], controller:(M, A, Vector[H])=>(M, EventFlow), boot:A):EventFlow	= {
 		var model	= initial
 		var handles	= Vector.empty[H]

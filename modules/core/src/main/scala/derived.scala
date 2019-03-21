@@ -4,6 +4,7 @@ import org.scalajs.dom.raw._
 
 object derived extends derived
 
+/** pseudo-attributes which have turned out to be useful */
 trait derived {
 	val displayed:Attribute[HTMLElement,Boolean]	=
 			Attribute dynamic[HTMLElement,Boolean]		{ (node, value) => node.style.display		= if (value) "" else "none" }

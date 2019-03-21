@@ -3,6 +3,7 @@ package sjs.diffless.demo
 import sjs.diffless.EventFlow
 import sjs.diffless.demo.util._
 
+/** transforms the application state for each requested action */
 object Controller {
 	def handle(model:Model, action:Action, exports:Vector[Output]):(Model,EventFlow)	= {
 		val next:Model	=
@@ -96,7 +97,7 @@ object Controller {
 						}
 				}
 
-		// TODO only when the model really changed
+		// BETTER only when the model really changed
 		Persistence save next
 
 		next -> EventFlow.permit

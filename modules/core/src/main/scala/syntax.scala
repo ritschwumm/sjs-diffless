@@ -5,6 +5,7 @@ import org.scalajs.dom.raw._
 
 object syntax extends syntax
 
+/** syntax extensions to have nice and clean DSL */
 trait syntax {
 	implicit class TagExt[N<:Node](peer:Tag[N]) {
 		def apply[M,A,H](children:Child[N,M,A,H]*):View[M,A,H]	=

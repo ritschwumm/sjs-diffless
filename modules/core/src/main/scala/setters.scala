@@ -5,6 +5,7 @@ import org.scalajs.dom.raw._
 
 object setters extends setters
 
+/** AttributeSetter instances for each tag/attribute combination possible */
 trait setters extends attributes {
 	implicit val Element_scrollTop						= AttributeSetter[scrollTop.type,			Element,				Double]								(_.scrollTop	= _)
 	implicit val Element_scrollLeft						= AttributeSetter[scrollLeft.type,			Element,				Double]								(_.scrollLeft	= _)

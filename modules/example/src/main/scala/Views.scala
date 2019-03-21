@@ -5,6 +5,7 @@ package sjs.diffless.demo
 import sjs.diffless._
 import sjs.diffless.imports._
 
+/** all our views in one place */
 object Views {
 	lazy val mainView:View[Model,Action,Output]	=
 			div(

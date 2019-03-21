@@ -20,7 +20,13 @@ object View {
 	}
 
 	// NOTE maybe converting attrs to an array would make sense here
-	def element[N<:Node,M,A,H](tag:Tag[N], attributes:Vector[Attribute[N,M]], emits:Vector[Emit[N,A]], inner:View[M,A,H], grafts:Vector[Graft[N,H]]):View[M,A,H] =
+	def element[N<:Node,M,A,H](
+		tag:Tag[N],
+		attributes:Vector[Attribute[N,M]],
+		emits:Vector[Emit[N,A]],
+		inner:View[M,A,H],
+		grafts:Vector[Graft[N,H]]
+	):View[M,A,H] =
 		{
 			val requiresUpdates	= inner.requiresUpdates || (attributes exists (_.requiresUpdates))
 			View(
@@ -305,6 +311,7 @@ object View {
 			)
 }
 
+/** defines a DOM node, tells an element to put it inside */
 final case class View[-M,+A,+H](
 	// !requiresUpdates implies !instableNodes
 	// instableNodes implies requiresUpdates

@@ -15,6 +15,7 @@ object Model {
 	}
 }
 
+/** our application's full state tree */
 final case class Model(
 	creating:String,
 	tasks:Vector[Task],
