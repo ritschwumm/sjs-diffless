@@ -93,7 +93,7 @@ object View {
 									}
 								}
 
-								// we always do the same node, to nothing to remove here
+								// we always do the same node, so nothing to remove here
 								Vector.empty
 							}
 
