@@ -159,7 +159,7 @@ trait setters extends attributes {
 	implicit val HTMLInputElement_accept				= AttributeAccess[accept.type,				HTMLInputElement,		String]								(_.accept	= _)
 	implicit val HTMLInputElement_alt					= AttributeAccess[alt.type,					HTMLInputElement,		String]								(_.alt	= _)
 	implicit val HTMLInputElement_defaultChecked		= AttributeAccess[defaultChecked.type,		HTMLInputElement,		Boolean]							(_.defaultChecked	= _)
-	implicit val HTMLInputElement_value					= AttributeAccess[value.type,				HTMLInputElement,		String]								(_.value	= _,			Some(_.value))
+	implicit val HTMLInputElement_value					= AttributeAccess[value.type,				HTMLInputElement,		String]								(_.value	= _)
 	implicit val HTMLInputElement_src					= AttributeAccess[src.type,					HTMLInputElement,		String]								(_.src	= _)
 	implicit val HTMLInputElement_name					= AttributeAccess[name.type,				HTMLInputElement,		String]								(_.name	= _)
 	implicit val HTMLInputElement_height				= AttributeAccess[height.type,				HTMLInputElement,		String]								(_.height	= _)
@@ -175,7 +175,7 @@ trait setters extends attributes {
 	implicit val HTMLInputElement_autofocus				= AttributeAccess[autofocus.type,			HTMLInputElement,		Boolean]							(_.autofocus	= _)
 	implicit val HTMLInputElement_required				= AttributeAccess[required.type,			HTMLInputElement,		Boolean]							(_.required	= _)
 	implicit val HTMLInputElement_formEnctype			= AttributeAccess[formEnctype.type,			HTMLInputElement,		String]								(_.formEnctype	= _)
-	implicit val HTMLInputElement_valueAsNumber			= AttributeAccess[valueAsNumber.type,		HTMLInputElement,		Double]								(_.valueAsNumber	= _,	Some(_.valueAsNumber))
+	implicit val HTMLInputElement_valueAsNumber			= AttributeAccess[valueAsNumber.type,		HTMLInputElement,		Double]								(_.valueAsNumber	= _)
 	implicit val HTMLInputElement_placeholder			= AttributeAccess[placeholder.type,			HTMLInputElement,		String]								(_.placeholder	= _)
 	implicit val HTMLInputElement_formMethod			= AttributeAccess[formMethod.type,			HTMLInputElement,		String]								(_.formMethod	= _)
 	implicit val HTMLInputElement_list					= AttributeAccess[list.type,				HTMLInputElement,		HTMLElement]						(_.list	= _)
@@ -221,7 +221,7 @@ trait setters extends attributes {
 	implicit val HTMLTableCellElement_colSpan			= AttributeAccess[colSpan.type,				HTMLTableCellElement,	Int]								(_.colSpan	= _)
 	implicit val HTMLTableCellElement_rowSpan			= AttributeAccess[rowSpan.type,				HTMLTableCellElement,	Int]								(_.rowSpan	= _)
 
-	implicit val HTMLTextAreaElement_value				= AttributeAccess[value.type,				HTMLTextAreaElement,	String]								(_.value	= _,			Some(_.value))
+	implicit val HTMLTextAreaElement_value				= AttributeAccess[value.type,				HTMLTextAreaElement,	String]								(_.value	= _)
 	implicit val HTMLTextAreaElement_status				= AttributeAccess[status.type,				HTMLTextAreaElement,	js.Any]								(_.status	= _)
 	implicit val HTMLTextAreaElement_name				= AttributeAccess[name.type,				HTMLTextAreaElement,	String]								(_.name	= _)
 	implicit val HTMLTextAreaElement_disabled			= AttributeAccess[disabled.type,			HTMLTextAreaElement,	Boolean]							(_.disabled	= _)
@@ -360,7 +360,7 @@ trait setters extends attributes {
 	implicit val HTMLEmbedElement_height				= AttributeAccess[height.type,				HTMLEmbedElement,		String]								(_.height	= _)
 
 	implicit val HTMLOptGroupElement_label				= AttributeAccess[labelAttr.type,			HTMLOptGroupElement,	String]								(_.label	= _)
-	implicit val HTMLOptGroupElement_disabled			= AttributeAccess[disabled.type,			HTMLOptGroupElement,	Boolean]								(_.disabled	= _)
+	implicit val HTMLOptGroupElement_disabled			= AttributeAccess[disabled.type,			HTMLOptGroupElement,	Boolean]							(_.disabled	= _)
 
 	implicit val HTMLVideoElement_width					= AttributeAccess[width.type,				HTMLVideoElement,		Int]								(_.width	= _)
 	implicit val HTMLVideoElement_height				= AttributeAccess[height.type,				HTMLVideoElement,		Int]								(_.height	= _)

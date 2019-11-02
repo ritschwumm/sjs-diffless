@@ -13,11 +13,7 @@ trait syntax {
 	}
 
 	implicit class AttributeKeyAttributeExt[K](peer:K) {
-		def ~=[N,M,MM](func:M=>MM)(implicit ev:AttributeAccess[K,N,MM]):Attribute[N,M]	=
-				ev.getter match {
-					case Some(getter)	=> Attribute dynamicSkipping	(ev.setter, getter) adaptModel func
-					case None			=> Attribute dynamic			(ev.setter) 		adaptModel func
-				}
+		def ~=[N,M,MM](func:M=>MM)(implicit ev:AttributeAccess[K,N,MM]):Attribute[N,M]	= Attribute dynamic	(ev.setter)	adaptModel func
 		def :=[N,M,MM](value:MM)(implicit ev:AttributeAccess[K,N,MM]):Attribute[N,M]	= Attribute static  (ev.setter, value)
 
 		/*
