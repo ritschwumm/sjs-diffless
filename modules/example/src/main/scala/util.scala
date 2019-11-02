@@ -9,11 +9,11 @@ object util {
 
 	//------------------------------------------------------------------------------
 
-	def runLater(action:()=>Unit) {
+	def runLater(action:()=>Unit):Unit	= {
 		RawTimers setTimeout (action, 1)
 	}
 
-	def runNow(action:()=>Unit) {
+	def runNow(action:()=>Unit):Unit	= {
 		action()
 	}
 

@@ -20,7 +20,7 @@ object Emit {
 				)
 			}
 
-	def applyEventFlow(ev:Event, flow:EventFlow) {
+	def applyEventFlow(ev:Event, flow:EventFlow):Unit	= {
 		flow.defaultAction match {
 			case EventDefaultAction.Permit		=>
 			case EventDefaultAction.Prevent		=> ev.preventDefault()
