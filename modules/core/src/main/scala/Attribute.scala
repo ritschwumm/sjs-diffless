@@ -24,9 +24,10 @@ object Attribute {
 					setter(target, initial)
 					var old	= initial
 					value => {
-						// old can run out of sync with the model, but then we expect this to be fixed in another input event later
+						// old can run out of sync with the model, but if this happens we can expect this to be fixed in another input event later
 						val cur	= getter(target)
-						if (cur == old && value != old) {
+						//println(s"### old=$old, current=$cur, value=$value, change=${cur == old && value != old}")
+						if (cur == old && value != cur) {
 							setter(target, value)
 							old	= value
 						}

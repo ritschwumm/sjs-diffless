@@ -23,10 +23,10 @@ trait setters extends attributes {
 
 	implicit val HTMLOListElement_start					= AttributeAccess[start.type,				HTMLOListElement,		Int]								(_.start	= _)
 
-	implicit val HTMLSelectElement_value				= AttributeAccess[value.type,				HTMLSelectElement,		String]								(_.value	= _,			Some(_.value))
+	implicit val HTMLSelectElement_value				= AttributeAccess[value.type,				HTMLSelectElement,		String]								(_.value	= _)
 	implicit val HTMLSelectElement_name					= AttributeAccess[name.type,				HTMLSelectElement,		String]								(_.name	= _)
 	implicit val HTMLSelectElement_size					= AttributeAccess[size.type,				HTMLSelectElement,		Int]								(_.size	= _)
-	implicit val HTMLSelectElement_selectedIndex		= AttributeAccess[selectedIndex.type,		HTMLSelectElement,		Int]								(_.selectedIndex	= _,	Some(_.selectedIndex))
+	implicit val HTMLSelectElement_selectedIndex		= AttributeAccess[selectedIndex.type,		HTMLSelectElement,		Int]								(_.selectedIndex	= _)
 	implicit val HTMLSelectElement_multiple				= AttributeAccess[multiple.type,			HTMLSelectElement,		Boolean]							(_.multiple	= _)
 	implicit val HTMLSelectElement_disabled				= AttributeAccess[disabled.type,			HTMLSelectElement,		Boolean]							(_.disabled	= _)
 	implicit val HTMLSelectElement_autofocus			= AttributeAccess[autofocus.type,			HTMLSelectElement,		Boolean]							(_.autofocus	= _)
@@ -55,7 +55,7 @@ trait setters extends attributes {
 	implicit val HTMLOptionElement_value				= AttributeAccess[value.type,				HTMLOptionElement,		String]								(_.value	= _)
 	implicit val HTMLOptionElement_text					= AttributeAccess[textAttr.type,			HTMLOptionElement,		String]								(_.text	= _)
 	implicit val HTMLOptionElement_label				= AttributeAccess[labelAttr.type,			HTMLOptionElement,		String]								(_.label	= _)
-	implicit val HTMLOptionElement_selected				= AttributeAccess[selected.type,			HTMLOptionElement,		Boolean]							(_.selected	= _,		Some(_.selected))
+	implicit val HTMLOptionElement_selected				= AttributeAccess[selected.type,			HTMLOptionElement,		Boolean]							(_.selected	= _)
 	implicit val HTMLOptionElement_disabled				= AttributeAccess[disabled.type,			HTMLOptionElement,		Boolean]							(_.disabled	= _)
 
 	implicit val HTMLMapElement_name					= AttributeAccess[name.type,				HTMLMapElement,			String]								(_.name	= _)
@@ -163,7 +163,7 @@ trait setters extends attributes {
 	implicit val HTMLInputElement_src					= AttributeAccess[src.type,					HTMLInputElement,		String]								(_.src	= _)
 	implicit val HTMLInputElement_name					= AttributeAccess[name.type,				HTMLInputElement,		String]								(_.name	= _)
 	implicit val HTMLInputElement_height				= AttributeAccess[height.type,				HTMLInputElement,		String]								(_.height	= _)
-	implicit val HTMLInputElement_checked				= AttributeAccess[checked.type,				HTMLInputElement,		Boolean]							(_.checked	= _,			Some(_.checked))
+	implicit val HTMLInputElement_checked				= AttributeAccess[checked.type,				HTMLInputElement,		Boolean]							(_.checked	= _)
 	implicit val HTMLInputElement_disabled				= AttributeAccess[disabled.type,			HTMLInputElement,		Boolean]							(_.disabled	= _)
 	implicit val HTMLInputElement_maxLength				= AttributeAccess[maxLength.type,			HTMLInputElement,		Int]								(_.maxLength	= _)
 	implicit val HTMLInputElement_type					= AttributeAccess[`type`.type,				HTMLInputElement,		String]								(_.`type`	= _)
