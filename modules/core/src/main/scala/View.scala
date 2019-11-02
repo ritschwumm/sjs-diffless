@@ -38,7 +38,6 @@ object View {
 
 						val selfHandles:Vector[H]	= grafts map (_ create node)
 
-						// BETTER filter out static attributes, no need to update them
 						private val attributeUpdates:Vector[M=>Unit]	=
 								attributes flatMap { attr =>
 									val base	= attr setup (node, initial)
@@ -86,10 +85,11 @@ object View {
 													}
 												}
 											}
-										}
 
-										// TODO opt calculating inner handles is not necessary when !inner.requiresUpdate
-										handles	= selfHandles ++ innerUpdater.handles
+											// NOTE selfHandles is constant here, but innerUpdater.handles might change even
+											// if inner.instableNodes is false because handles are accumulated transitively
+											handles	= selfHandles ++ innerUpdater.handles
+										}
 									}
 								}
 
@@ -123,34 +123,41 @@ object View {
 	def sequence[M,A,H](children:Vector[View[M,A,H]]):View[M,A,H]	=
 				 if (children.isEmpty)		empty
 			else if (children.size == 1)	children.head
-			else View(
-				requiresUpdates	= children exists (_.requiresUpdates),
-				instableNodes	= children exists (_.instableNodes),
-				setup	= (initial, dispatch) => {
-					new Updater[M,H] {
-						private val childUpdaters:Vector[Updater[M,H]]	= children map (_ setup (initial, dispatch))
+			else {
+				val requiresUpdates	= children exists (_.requiresUpdates)
+				val instableNodes	= children exists (_.instableNodes)
+				View(
+					requiresUpdates	= requiresUpdates,
+					instableNodes	= instableNodes,
+					setup	= (initial, dispatch) => {
+						new Updater[M,H] {
+							private val childUpdaters:Vector[Updater[M,H]]	= children map (_ setup (initial, dispatch))
 
-						var active:Vector[Node]	= childUpdaters flatMap (_.active)
-						var handles:Vector[H]	= childUpdaters flatMap (_.handles)
+							var active:Vector[Node]	= childUpdaters flatMap (_.active)
+							var handles:Vector[H]	= childUpdaters flatMap (_.handles)
 
-						private var old	= initial
+							private var old	= initial
 
-						// TODO opt use optimization data
-						def update(value:M):Vector[Node]	=
-								if (value != old) {
-									old	= value
+							def update(value:M):Vector[Node]	=
+									if (requiresUpdates && value != old) {
+										old	= value
 
-									val expired	= childUpdaters flatMap (_ update value)
-									active	= childUpdaters flatMap (_.active)
-									handles	= childUpdaters flatMap (_.handles)
-									expired
-								}
-								else {
-									Vector.empty
-								}
+										val expired	= childUpdaters flatMap (_ update value)
+
+										if (instableNodes) {
+											active	= childUpdaters flatMap (_.active)
+										}
+
+										handles	= childUpdaters flatMap (_.handles)
+										expired
+									}
+									else {
+										Vector.empty
+									}
+						}
 					}
-				}
-			)
+				)
+			}
 
 	def vector[M,A,H](item:View[M,A,H]):View[Vector[M],A,H]	=
 			View(
@@ -267,9 +274,15 @@ object View {
 	// BETTER optimize?
 	def either[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[Either[M1,M2],A,H]	=
 			vararg(
+				vector(item1) adaptModel (_.swap.toOption.toVector),
+				vector(item2) adaptModel (_.toOption.toVector)
+			)
+			/*
+			vararg(
 				optional(item1) adaptModel (_.swap.toOption),
 				optional(item2) adaptModel (_.toOption)
 			)
+			*/
 
 	// BETTER optimize?
 	def pair[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[(M1,M2),A,H]	=
@@ -313,10 +326,17 @@ object View {
 
 /** defines a DOM node, tells an element to put it inside */
 final case class View[-M,+A,+H](
-	// !requiresUpdates implies !instableNodes
-	// instableNodes implies requiresUpdates
+	/*
+	!requiresUpdates	implies	!instableNodes
+	instableNodes		implies	requiresUpdates
+	*/
+
+	/// when this is false, there's no need to call update at all because the view is completely static
 	requiresUpdates:Boolean,
+
+	/// when this is false, the View's Updater always has the same active Nodes - but no necessarily the same handles, because those are gathered transitively
 	instableNodes:Boolean,
+
 	setup:(M, A=>EventFlow) => Updater[M,H]
 )
 extends Child[Any,M,A,H] { self =>
@@ -343,6 +363,52 @@ extends Child[Any,M,A,H] { self =>
 					setup(func(initial), dispatch) adaptModel func
 				}
 			)
+
+	def adaptActionAndHandle[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	=
+			View(
+				requiresUpdates	= requiresUpdates,
+				instableNodes	= instableNodes,
+				setup	= (initial, dispatch) => {
+					setup(initial, action andThen dispatch) adaptHandle handle
+				}
+			)
+
+	def adaptAction[AA](func:A=>AA):View[M,AA,H]	=
+			View(
+				requiresUpdates	= requiresUpdates,
+				instableNodes	= instableNodes,
+				setup	= (initial, dispatch) => {
+					self setup (initial, func andThen dispatch)
+				}
+			)
+
+	def adaptHandle[HH](func:H=>HH):View[M,A,HH]	=
+			View(
+				requiresUpdates	= requiresUpdates,
+				instableNodes	= instableNodes,
+				setup	= (initial, dispatch) => {
+					self setup (initial, dispatch) adaptHandle func
+				}
+			)
+
+	def dropHandle:View[M,A,Nothing]	=
+			View(
+				requiresUpdates	= requiresUpdates,
+				instableNodes	= instableNodes,
+				setup	= (initial, dispatch) => {
+					self.setup(initial, dispatch).dropHandle
+				}
+			)
+
+	/*
+	def modifyHandles[HH](func:Vector[H]=>Vector[HH]):View[M,A,HH]	=
+			View(
+				requiresUpdates	= requiresUpdates,
+				setup	= (initial, dispatch) => {
+					self setup (initial, dispatch) modifyHandles func
+				}
+			)
+	*/
 
 	def contextual[C,AA,HH](actionFunc:(C,A)=>AA, handleFunc:(C,H)=>HH):View[(C,M),AA,HH]	=
 			View(
@@ -396,52 +462,6 @@ extends Child[Any,M,A,H] { self =>
 			)
 	*/
 
-	def adaptActionAndHandle[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	=
-			View(
-				requiresUpdates	= requiresUpdates,
-				instableNodes	= instableNodes,
-				setup	= (initial, dispatch) => {
-					setup(initial, action andThen dispatch) adaptHandle handle
-				}
-			)
-
-	def adaptAction[AA](func:A=>AA):View[M,AA,H]	=
-			View(
-				requiresUpdates	= requiresUpdates,
-				instableNodes	= instableNodes,
-				setup	= (initial, dispatch) => {
-					self setup (initial, func andThen dispatch)
-				}
-			)
-
-	def adaptHandle[HH](func:H=>HH):View[M,A,HH]	=
-			View(
-				requiresUpdates	= requiresUpdates,
-				instableNodes	= instableNodes,
-				setup	= (initial, dispatch) => {
-					self setup (initial, dispatch) adaptHandle func
-				}
-			)
-
-	def dropHandle:View[M,A,Nothing]	=
-			View(
-				requiresUpdates	= requiresUpdates,
-				instableNodes	= instableNodes,
-				setup	= (initial, dispatch) => {
-					self.setup(initial, dispatch).dropHandle
-				}
-			)
-
-	/*
-	def modifyHandles[HH](func:Vector[H]=>Vector[HH]):View[M,A,HH]	=
-			View(
-				requiresUpdates	= requiresUpdates,
-				setup	= (initial, dispatch) => {
-					self setup (initial, dispatch) modifyHandles func
-				}
-			)
-	*/
-
 	def caching:View[M,A,H]	=
 			if (requiresUpdates) {
 				View(
@@ -473,6 +493,8 @@ extends Child[Any,M,A,H] { self =>
 					setup(func(initial), dispatch) lively (alive, func)
 				}
 			)
+
+	//------------------------------------------------------------------------------
 
 	def attach(node:Node, initial:M, dispatch:A=>EventFlow):(Vector[H], M=>Vector[H])	= {
 		while (node.firstChild != null) {

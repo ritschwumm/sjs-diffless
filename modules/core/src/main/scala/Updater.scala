@@ -6,7 +6,9 @@ import org.scalajs.dom.raw._
 abstract class Updater[-M,+H] { self =>
 	/** returns expired nodes */
 	def update(value:M):Vector[Node]
+	/** current child nodes, might change in #update */
 	def active:Vector[Node]
+	/** current handles, might change in #update */
 	def handles:Vector[H]
 
 	def adapt[MM,HH](modelFunc:MM=>M, handleFunc:H=>HH):Updater[MM,HH]	=
@@ -23,19 +25,6 @@ abstract class Updater[-M,+H] { self =>
 				def active:Vector[Node]				= self.active
 				def handles:Vector[H]				= self.handles
 			}
-
-	/*
-	def contextualHandle[MM<:M,HH](initial:MM, func:(MM,H)=>HH):Updater[MM,HH]	=
-			new Updater[MM,HH] {
-				var model:MM	= initial
-				def update(value:MM):Vector[Node]	= {
-					model	= value
-					self update value
-				}
-				def active:Vector[Node]				= self.active
-				def handles:Vector[HH]				= self.handles map { it => func(model, it) }
-			}
-	*/
 
 	def adaptHandle[HH](func:H=>HH):Updater[M,HH]	=
 			new Updater[M,HH] {
@@ -57,6 +46,19 @@ abstract class Updater[-M,+H] { self =>
 				def update(value:M):Vector[Node]	= self update value
 				def active:Vector[Node]				= self.active
 				def handle:Vector[HH]				= func(self.handle)
+			}
+	*/
+
+	/*
+	def contextualHandle[MM<:M,HH](initial:MM, func:(MM,H)=>HH):Updater[MM,HH]	=
+			new Updater[MM,HH] {
+				var model:MM	= initial
+				def update(value:MM):Vector[Node]	= {
+					model	= value
+					self update value
+				}
+				def active:Vector[Node]				= self.active
+				def handles:Vector[HH]				= self.handles map { it => func(model, it) }
 			}
 	*/
 

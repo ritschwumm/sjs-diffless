@@ -1,6 +1,7 @@
 package sjs.diffless
 
 object Attribute {
+	// behaves like dynamicUncached(setter).caching
 	def dynamic[N,M](setter:(N,M)=>Unit):Attribute[N,M]	=
 			Attribute(
 				requiresUpdates	= true,
