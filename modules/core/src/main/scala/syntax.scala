@@ -13,18 +13,22 @@ trait syntax {
 	}
 
 	implicit class AttributeKeyAttributeExt[K](peer:K) {
-		def ~=[N,M,MM](func:M=>MM)(implicit ev:AttributeSetter[K,N,MM]):Attribute[N,M]	= Attribute dynamic ev.proc adaptModel func
-		def :=[N,M,MM](value:MM)(implicit ev:AttributeSetter[K,N,MM]):Attribute[N,M]	= Attribute static  (ev.proc, value)
+		def ~=[N,M,MM](func:M=>MM)(implicit ev:AttributeAccess[K,N,MM]):Attribute[N,M]	=
+				ev.getter match {
+					case Some(getter)	=> Attribute dynamicSkipping	(ev.setter, getter) adaptModel func
+					case None			=> Attribute dynamic			(ev.setter) 		adaptModel func
+				}
+		def :=[N,M,MM](value:MM)(implicit ev:AttributeAccess[K,N,MM]):Attribute[N,M]	= Attribute static  (ev.setter, value)
 
 		/*
 		sadly, this leads to ambiguous implicits
-		def apply[N,M,A](implicit ev:AttributeSetter[K,N,M]):Attribute[N,M]	= Attribute dynamic ev.proc
+		def apply[N,M,A](implicit ev:AttributeAccess[K,N,M]):Attribute[N,M]	= Attribute dynamic ev.proc
 		*/
 	}
 
 	implicit class AttributeKeyEmitExt[K](peer:K) {
-		def |=[N,A,E<:Event](handler:(N,E)=>A)(implicit ev:AttributeSetter[K,N,js.Function1[E,_]]):Emit[N,A]	= {
-			val attach:(N,E=>Unit)=>Unit	= (n,ae) => ev.proc(n, ae)
+		def |=[N,A,E<:Event](handler:(N,E)=>A)(implicit ev:AttributeAccess[K,N,js.Function1[E,_]]):Emit[N,A]	= {
+			val attach:(N,E=>Unit)=>Unit	= (n,ae) => ev.setter(n, ae)
 			Emit action (attach, handler)
 		}
 	}

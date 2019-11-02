@@ -15,6 +15,25 @@ object Attribute {
 				}
 			)
 
+	// for input elements and similar, the user might have changed its value already
+	// if this is the case, we must not update it ourselves, or the cursor will jump
+	def dynamicSkipping[N,M](setter:(N,M)=>Unit, getter:N=>M):Attribute[N,M]	=
+			Attribute(
+				requiresUpdates	= true,
+				setup	= (target, initial) => {
+					setter(target, initial)
+					var old	= initial
+					value => {
+						// old can run out of sync with the model, but then we expect this to be fixed in another input event later
+						val cur	= getter(target)
+						if (cur == old && value != old) {
+							setter(target, value)
+							old	= value
+						}
+					}
+				}
+			)
+
 	def dynamicUncached[N,M](setter:(N,M)=>Unit):Attribute[N,M]	=
 			Attribute(
 				requiresUpdates	= true,
