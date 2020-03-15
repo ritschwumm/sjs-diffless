@@ -1,6 +1,6 @@
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.18.0",
+	version			:= "0.19.0",
 
 	scalaVersion	:= "2.13.1",
 	scalacOptions	++= Seq(
@@ -14,10 +14,10 @@ inThisBuild(Seq(
 ))
 
 lazy val noTestSettings	=
-		Seq(
-			test		:= {},
-			testQuick	:= {}
-		)
+	Seq(
+		test		:= {},
+		testQuick	:= {}
+	)
 
 lazy val `sjs-diffless` =
 	(project in file("."))
@@ -34,17 +34,17 @@ lazy val `sjs-diffless` =
 //------------------------------------------------------------------------------
 
 lazy val `sjs-diffless-core`	=
-		(project in file("modules/core"))
-		.enablePlugins(
-			ScalaJSPlugin
+	(project in file("modules/core"))
+	.enablePlugins(
+		ScalaJSPlugin
+	)
+	.dependsOn()
+	.settings(
+		noTestSettings,
+		libraryDependencies ++= Seq(
+			"org.scala-js"	%%%	"scalajs-dom"	% "0.9.8"	% "compile"
 		)
-		.dependsOn()
-		.settings(
-			noTestSettings,
-			libraryDependencies ++= Seq(
-				"org.scala-js"	%%%	"scalajs-dom"	% "0.9.8"	% "compile"
-			)
-		)
+	)
 
 //------------------------------------------------------------------------------
 
@@ -54,77 +54,75 @@ lazy val appTarget	= SettingKey[File]	("appTarget")
 lazy val appBuild	= TaskKey[File]		("appBuild")
 
 val jsCompiler	=
-		Def.taskDyn {
-			Compile / fastOptJS
-			/*
-			if (development.value)	Compile / fastOptJS
-			else					Compile / fullOptJS
-			*/
-		}
+	Def.taskDyn {
+		Compile / fastOptJS
+		/*
+		if (development.value)	Compile / fastOptJS
+		else					Compile / fullOptJS
+		*/
+	}
 
 lazy val `sjs-diffless-example`	=
-		(project in file("modules/example"))
-		.enablePlugins(
-			ScalaJSPlugin
-		)
-		.dependsOn(
-			`sjs-diffless-core`
-		)
-		.settings(
-			noTestSettings,
+	(project in file("modules/example"))
+	.enablePlugins(
+		ScalaJSPlugin
+	)
+	.dependsOn(
+		`sjs-diffless-core`
+	)
+	.settings(
+		noTestSettings,
 
-			appSource	:= (Compile / sourceDirectory).value / "webapp",
-			appSjs		:= crossTarget.value / "sjs",
-			appTarget	:= crossTarget.value / "webapp",
-			appBuild	:= {
-				// fetch JS files
-				val (js, jsMap)	= {
-					val attrd	= jsCompiler.value
-					val src		= attrd.data
-					val map		= attrd get scalaJSSourceMap getOrElse (sys error s"missing map file for $src")
-					// file names have been fixed with artifactPath and scalaJSLinkerConfig above
-					(src, map)
-				}
-				val jsToCopy	=
-						Vector(
-							js		-> (appTarget.value / js.getName),
-							jsMap	-> (appTarget.value / jsMap.getName)
-						)
+		appSource	:= (Compile / sourceDirectory).value / "webapp",
+		appSjs		:= crossTarget.value / "sjs",
+		appTarget	:= crossTarget.value / "webapp",
+		appBuild	:= {
+			// fetch JS files
+			val (js, jsMap)	= {
+				val attrd	= jsCompiler.value
+				val src		= attrd.data
+				val map		= attrd get scalaJSSourceMap getOrElse (sys error s"missing map file for $src")
+				// file names have been fixed with artifactPath and scalaJSLinkerConfig above
+				(src, map)
+			}
+			val jsToCopy	=
+				Vector(
+					js		-> (appTarget.value / js.getName),
+					jsMap	-> (appTarget.value / jsMap.getName)
+				)
 
-				// fetch static assets
-				val staticToCopy	=
-						appSource.value.allPaths ** -DirectoryFilter pair Path.rebase(appSource.value, appTarget.value)
+			// fetch static assets
+			val staticToCopy	=
+				appSource.value.allPaths ** -DirectoryFilter pair Path.rebase(appSource.value, appTarget.value)
 
-				// copy together
-				streams.value.log info s"building app in ${appTarget.value}"
-				IO delete appTarget.value
-				appTarget.value mkdirs ()
-				IO copy (staticToCopy ++ jsToCopy)
+			// copy together
+			streams.value.log info s"building app in ${appTarget.value}"
+			IO delete appTarget.value
+			appTarget.value mkdirs ()
+			IO copy (staticToCopy ++ jsToCopy)
 
-				// BETTER return path mappings
-				appTarget.value
-			},
+			// BETTER return path mappings
+			appTarget.value
+		},
 
-			// automatically start on import
-			scalaJSUseMainModuleInitializer := true,
+		// automatically start on import
+		scalaJSUseMainModuleInitializer := true,
 
-			// NOTE somehow this was cleaner
-			//relativeSourceMaps	:= true,
-			scalaJSLinkerConfig		:= scalaJSLinkerConfig.value withRelativizeSourceMapBase Some((appSjs.value / "index.js").toURI),
+		// NOTE somehow this was cleaner
+		//relativeSourceMaps	:= true,
+		scalaJSLinkerConfig		:= scalaJSLinkerConfig.value withRelativizeSourceMapBase Some((appSjs.value / "index.js").toURI),
 
-			// final name to ensure the .map reference doesn't have to be patched later
-			Compile / fastOptJS						/ artifactPath	:= appSjs.value / "index.js",
-			Compile / fullOptJS						/ artifactPath	:= appSjs.value / "index.js",
-			Compile / packageJSDependencies			/ artifactPath	:= appSjs.value / "index-jsdeps.js",
-			Compile / packageMinifiedJSDependencies	/ artifactPath	:= appSjs.value / "index-jsdeps.min.js",
+		// final name to ensure the .map reference doesn't have to be patched later
+		Compile / fastOptJS						/ artifactPath	:= appSjs.value / "index.js",
+		Compile / fullOptJS						/ artifactPath	:= appSjs.value / "index.js",
 
-			watchSources	:= watchSources.value :+ Watched.WatchSource(appSource.value)
-		)
+		watchSources	:= watchSources.value :+ Watched.WatchSource(appSource.value)
+	)
 
 //------------------------------------------------------------------------------
 
 TaskKey[File]("bundle")	:=
-		(`sjs-diffless-example` / appBuild).value
+	(`sjs-diffless-example` / appBuild).value
 
 TaskKey[Unit]("demo")	:= {
 	import java.awt.Desktop

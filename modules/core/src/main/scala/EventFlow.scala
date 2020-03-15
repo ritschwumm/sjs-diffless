@@ -2,10 +2,10 @@ package sjs.diffless
 
 object EventFlow {
 	val permit	=
-			EventFlow(
-				EventDefaultAction.Permit,
-				EventPropagation.Propagate
-			)
+		EventFlow(
+			EventDefaultAction.Permit,
+			EventPropagation.Propagate
+		)
 }
 
 /** what to do after an event has been dealt with */

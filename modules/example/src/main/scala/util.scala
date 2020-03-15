@@ -24,8 +24,8 @@ object util {
 		def into[U](func:T=>U):U	= func(peer)
 
 		def matchOption[U](pf:PartialFunction[T,U]):Option[U]	=
-				if (pf isDefinedAt peer)	Some(pf(peer))
-				else						None
+			if (pf isDefinedAt peer)	Some(pf(peer))
+			else						None
 	}
 	*/
 }

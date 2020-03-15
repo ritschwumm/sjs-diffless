@@ -9,16 +9,16 @@ object Emit {
 	}
 
 	def action[N,A,E<:Event](attach:(N,E=>Unit) => Unit, handler:(N,E) => A):Emit[N,A]	=
-			Emit { (target, dispatch) =>
-				attach(
-					target,
-					(ev:E) => {
-						val action		= handler(target, ev)
-						val eventFlow	= dispatch(action)
-						applyEventFlow(ev, eventFlow)
-					}
-				)
-			}
+		Emit { (target, dispatch) =>
+			attach(
+				target,
+				(ev:E) => {
+					val action		= handler(target, ev)
+					val eventFlow	= dispatch(action)
+					applyEventFlow(ev, eventFlow)
+				}
+			)
+		}
 
 	def applyEventFlow(ev:Event, flow:EventFlow):Unit	= {
 		flow.defaultAction match {
@@ -37,7 +37,7 @@ object Emit {
 final case class Emit[-N,+A](setup:(N,A=>EventFlow) => Unit) extends Child[N,Any,A,Nothing] {
 	// TODO do we need this?
 	def mapAction[AA](func:A=>AA):Emit[N,AA]	=
-			Emit { (target, dispatch) =>
-				setup(target, func andThen dispatch)
-			}
+		Emit { (target, dispatch) =>
+			setup(target, func andThen dispatch)
+		}
 }

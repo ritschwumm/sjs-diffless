@@ -2,11 +2,11 @@ package sjs.diffless.demo
 
 object Model {
 	val initial	=
-			Model(
-				creating	= "",
-				tasks		= Vector.empty,
-				filter		= None
-			)
+		Model(
+			creating	= "",
+			tasks		= Vector.empty,
+			filter		= None
+		)
 
 	object M {
 		val creating:Mod[Model,String]			= Mod { func => model => model copy (creating	= func(model.creating))	}
@@ -22,16 +22,16 @@ final case class Model(
 	filter:Option[Boolean]
 ) {
 	val incompleteCount:Int	=
-			tasks count (!_.data.completed)
+		tasks count (!_.data.completed)
 
 	val hasCompleted:Boolean	=
-			tasks exists (_.data.completed)
+		tasks exists (_.data.completed)
 
 	val allCompleted:Boolean	=
-			tasks forall (_.data.completed)
+		tasks forall (_.data.completed)
 
 	val visible:Vector[Task]	=
-			tasks filter { item =>
-				filter forall { item.data.completed == _ }
-			}
+		tasks filter { item =>
+			filter forall { item.data.completed == _ }
+		}
 }

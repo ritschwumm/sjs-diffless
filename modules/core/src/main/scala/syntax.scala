@@ -9,7 +9,7 @@ object syntax extends syntax
 trait syntax {
 	implicit class TagExt[N<:Node](peer:Tag[N]) {
 		def apply[M,A,H](children:Child[N,M,A,H]*):View[M,A,H]	=
-				View elementFromChildren (peer, children.toVector)
+			View elementFromChildren (peer, children.toVector)
 	}
 
 	implicit class AttributeKeyAttributeExt[K](peer:K) {
