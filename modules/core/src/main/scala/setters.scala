@@ -32,8 +32,9 @@ trait setters extends attributes {
 	implicit val HTMLSelectElement_autofocus			= AttributeAccess[autofocus.type,			HTMLSelectElement,		Boolean]							(_.autofocus	= _)
 	implicit val HTMLSelectElement_required				= AttributeAccess[required.type,			HTMLSelectElement,		Boolean]							(_.required	= _)
 
-	implicit val HTMLBlockElement_width					= AttributeAccess[width.type,				HTMLBlockElement,		Double]								(_.width	= _)
-	implicit val HTMLBlockElement_cite					= AttributeAccess[citeAttr.type,			HTMLBlockElement,		String]								(_.cite	= _)
+	// NOTE gone since scala-js-dom 1.0.0
+	//implicit val HTMLBlockElement_width					= AttributeAccess[width.type,				HTMLBlockElement,		Double]								(_.width	= _)
+	//implicit val HTMLBlockElement_cite					= AttributeAccess[citeAttr.type,			HTMLBlockElement,		String]								(_.cite	= _)
 
 	implicit val HTMLMetaElement_httpEquiv				= AttributeAccess[httpEquiv.type,			HTMLMetaElement,		String]								(_.httpEquiv	= _)
 	implicit val HTMLMetaElement_name					= AttributeAccess[name.type,				HTMLMetaElement,		String]								(_.name	= _)
@@ -41,7 +42,8 @@ trait setters extends attributes {
 	implicit val HTMLMetaElement_url					= AttributeAccess[url.type,					HTMLMetaElement,		String]								(_.url	= _)
 	implicit val HTMLMetaElement_charset				= AttributeAccess[charset.type,				HTMLMetaElement,		String]								(_.charset	= _)
 
-	implicit val HTMLDDElement_noWrap					= AttributeAccess[noWrap.type,				HTMLDDElement,			Boolean]							(_.noWrap	= _)
+	// NOTE gone since scala-js-dom 1.0.0
+	//implicit val HTMLDDElement_noWrap					= AttributeAccess[noWrap.type,				HTMLDDElement,			Boolean]							(_.noWrap	= _)
 
 	implicit val HTMLLinkElement_rel					= AttributeAccess[rel.type,					HTMLLinkElement,		String]								(_.rel	= _)
 	implicit val HTMLLinkElement_target					= AttributeAccess[target.type,				HTMLLinkElement,		String]								(_.target	= _)
@@ -208,7 +210,8 @@ trait setters extends attributes {
 	implicit val HTMLParamElement_value					= AttributeAccess[value.type,				HTMLParamElement,		String]								(_.value	= _)
 	implicit val HTMLParamElement_name					= AttributeAccess[name.type,				HTMLParamElement,		String]								(_.name	= _)
 
-	implicit val HTMLPhraseElement_dateTime				= AttributeAccess[dateTime.type,			HTMLPhraseElement,		String]								(_.dateTime	= _)
+	// NOTE gone since scala-js-dom 1.0.0
+	//implicit val HTMLPhraseElement_dateTime				= AttributeAccess[dateTime.type,			HTMLPhraseElement,		String]								(_.dateTime	= _)
 
 	implicit val HTMLCanvasElement_width				= AttributeAccess[width.type,				HTMLCanvasElement,		Int]								(_.width	= _)
 	implicit val HTMLCanvasElement_height				= AttributeAccess[height.type,				HTMLCanvasElement,		Int]								(_.height	= _)
@@ -253,7 +256,8 @@ trait setters extends attributes {
 	implicit val HTMLMediaElement_currentTime			= AttributeAccess[currentTime.type,			HTMLMediaElement,		Double]								(_.currentTime	= _)
 	implicit val HTMLMediaElement_preload				= AttributeAccess[preload.type,				HTMLMediaElement,		String]								(_.preload	= _)
 
-	implicit val HTMLDTElement_noWrap					= AttributeAccess[noWrap.type,				HTMLDTElement,			Boolean]							(_.noWrap	= _)
+	// NOTE gone since scala-js-dom 1.0.0
+	//implicit val HTMLDTElement_noWrap					= AttributeAccess[noWrap.type,				HTMLDTElement,			Boolean]							(_.noWrap	= _)
 
 	implicit val HTMLFieldSetElement_disabled			= AttributeAccess[disabled.type,			HTMLFieldSetElement,	Boolean]							(_.disabled	= _)
 
