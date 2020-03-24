@@ -5,7 +5,7 @@ import sjs.diffless.demo.util._
 
 /** transforms the application state for each requested action */
 object Controller {
-	def handle(model:Model, action:Action, exports:Vector[Output]):(Model,EventFlow)	= {
+	def handle(model:Model, action:Action, exports:Vector[Exported]):(Model,EventFlow)	= {
 		val next:Model	=
 			action match {
 				case Action.Skip	=>
@@ -15,7 +15,7 @@ object Controller {
 				case Action.Boot	=>
 					// TODO ugly side effects
 
-					exports collect	{ case Output.CreateText(focus) => focus } foreach runNow
+					exports collect	{ case Exported.CreateText(focus) => focus } foreach runNow
 
 					Persistence.load() getOrElse model
 
@@ -60,7 +60,7 @@ object Controller {
 					// TODO ugly side effects
 
 					// NOTE timer delay is necessary because the element is still display:none here
-					exports collect	{ case Output.Task(`id`, TaskOutput.Editor(focus)) => focus } foreach runLater
+					exports collect	{ case Exported.Task(`id`, TaskExported.Editor(focus)) => focus } foreach runLater
 
 					execute(model) {
 						oneTask(id) lift ((TaskData.M.editing set true) andThen previewFromText)

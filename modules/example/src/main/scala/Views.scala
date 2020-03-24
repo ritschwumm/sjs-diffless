@@ -7,7 +7,7 @@ import sjs.diffless.imports._
 
 /** all our views in one place */
 object Views {
-	lazy val mainView:View[Model,Action,Output]	=
+	lazy val mainView:View[Model,Action,Exported]	=
 		div(
 			className	:= "main",
 			headerView,
@@ -15,14 +15,14 @@ object Views {
 			footerView
 		)
 
-	lazy val headerView:View[Model,Action,Output]	=
+	lazy val headerView:View[Model,Action,Exported]	=
 		header(
 			className	:= "header",
 			completeView(_.tasks),
 			createView
 		)
 
-	lazy val completeView:View[Vector[Task],Action,Output]	=
+	lazy val completeView:View[Vector[Task],Action,Exported]	=
 		input(
 			className	:= "complete",
 			`type`		:= "checkbox",
@@ -31,45 +31,43 @@ object Views {
 			onInput		|= { (target, event) => Action.Complete }
 		)
 
-	lazy val createView:View[Model,Action,Output]	=
+	lazy val createView:View[Model,Action,Exported]	=
 		input(
 			className	:= "create",
 			`type`		:= "text",
 			placeholder	:= "what needs to be done?",
 			value		~= (_.creating),
-			onInput		|= { (target, event) => Action.Creating(target.value)							},
+			onInput		|= { (target, event) => Action.Creating(target.value)								},
 			onKeyUp		|= { (target, event) => if (event.key == "Enter") Action.Create else Action.Skip	},
-			Graft { target =>
-				Output.CreateText(
+			Export { target =>
+				Exported.CreateText(
 					focus	= () => target.focus()
 				)
 			}
 		)
 
-	lazy val taskListView:View[Vector[Task],Action,Output]	=
+	lazy val taskListView:View[Vector[Task],Action,Exported]	=
 		ul(
 			className	:= "task-list",
 			taskItemViewEmbed
 		)
 
-	lazy val taskItemViewEmbed:View[Vector[Task],Action,Output]	= {
+	lazy val taskItemViewEmbed:View[Vector[Task],Action,Exported]	= {
 		val keyify:Task=>(String,Task)	= it => it.id.value -> it
 		keyed(taskItemEmbeddedView)(_ map keyify)
 	}
 
-	// TODO let this use a TaskEntity
-	lazy val taskItemEmbeddedView:View[Task,Action,Output]	=
+	lazy val taskItemEmbeddedView:View[Task,Action,Exported]	=
 		taskItemView
 		.contextual (
 			actionFunc	= Action.Task.apply,
-			handleFunc	= Output.Task.apply
+			handleFunc	= Exported.Task.apply
 		)
 		.adaptModel { task =>
 			task.id -> task.data
 		}
 
-	// TODO let this use a TaskData
-	lazy val taskItemView:View[TaskData,TaskAction,TaskOutput]	=
+	lazy val taskItemView:View[TaskData,TaskAction,TaskExported]	=
 		li(
 			className	:= "task-item",
 			onDblClick	|= { (target, model) => TaskAction.Edit },
@@ -83,7 +81,10 @@ object Views {
 			div(
 				//className	:= "task-item-text",
 				classSet	~= { task =>
-					(if (task.completed) Set("task-item-text-completed") else Set.empty[String]) +
+					(
+						if (task.completed) Set("task-item-text-completed")
+						else				Set.empty[String]
+					) +
 					"task-item-text"
 				},
 				displayed	~= (!_.editing),
@@ -107,15 +108,15 @@ object Views {
 					else if (event.key == "Escape")	TaskAction.Rollback
 					else							TaskAction.Skip
 				},
-				Graft { target =>
-					TaskOutput.Editor(
+				Export { target =>
+					TaskExported.Editor(
 						() => target.focus()
 					)
 				}
 			)
 		)
 
-	lazy val footerView:View[Model,Action,Output]	=
+	lazy val footerView:View[Model,Action,Nothing]	=
 		footer(
 			className	:= "footer",
 			displayed	~= (_.tasks.nonEmpty),
@@ -124,7 +125,7 @@ object Views {
 			clearView(_.hasCompleted)
 		)
 
-	lazy val countView:View[Int,Action,Output]	=
+	lazy val countView:View[Int,Action,Nothing]	=
 		div(
 			className	:= "count",
 			strong(
@@ -137,7 +138,7 @@ object Views {
 			literal(" left")
 		)
 
-	lazy val filterListView:View[Option[Boolean],Action,Output]	=
+	lazy val filterListView:View[Option[Boolean],Action,Nothing]	=
 		div(
 			className	:= "filter-list",
 			filterItemView("all",		None),
@@ -145,7 +146,7 @@ object Views {
 			filterItemView("completed",	Some(true))
 		)
 
-	def filterItemView(labelText:String, state:Option[Boolean]):View[Option[Boolean],Action,Output]	=
+	def filterItemView(labelText:String, state:Option[Boolean]):View[Option[Boolean],Action,Nothing]	=
 		label(
 			className	:= "filter-item",
 			input(
@@ -156,7 +157,7 @@ object Views {
 			literal(labelText)
 		)
 
-	lazy val clearView:View[Boolean,Action,Output]	=
+	lazy val clearView:View[Boolean,Action,Nothing]	=
 		button(
 			className	:= "clear",
 			visible		~= identity,

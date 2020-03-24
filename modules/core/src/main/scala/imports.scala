@@ -6,7 +6,7 @@ object imports extends imports
 trait imports
 	extends syntax
 	with views
-	with grafts
+	with exports
 	with tags
 	with attributes
 	with setters

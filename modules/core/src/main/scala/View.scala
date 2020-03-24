@@ -9,13 +9,13 @@ object View {
 		val attributes:Vector[Attribute[N,M]]	= children collect { case x:Attribute[N,M]	=> x }
 		val emits:Vector[Emit[N,A]]				= children collect { case x:Emit[N,A]		=> x }
 		val inners:Vector[View[M,A,H]]			= children collect { case x:View[M,A,H]		=> x }
-		val grafts:Vector[Graft[N,H]]			= children collect { case x:Graft[N,H]		=> x }
+		val exports:Vector[Export[N,H]]			= children collect { case x:Export[N,H]		=> x }
 		element(
 			tag			= tag,
 			attributes	= attributes,
 			emits		= emits,
 			inner		= sequence(inners),
-			grafts		= grafts
+			exports		= exports
 		)
 	}
 
@@ -25,7 +25,7 @@ object View {
 		attributes:Vector[Attribute[N,M]],
 		emits:Vector[Emit[N,A]],
 		inner:View[M,A,H],
-		grafts:Vector[Graft[N,H]]
+		exports:Vector[Export[N,H]]
 	):View[M,A,H] =
 		{
 			val requiresUpdates	= inner.requiresUpdates || (attributes exists (_.requiresUpdates))
@@ -36,7 +36,7 @@ object View {
 					new Updater[M,H] {
 						private val node	= tag.create()
 
-						val selfHandles:Vector[H]	= grafts map (_ create node)
+						val selfHandles:Vector[H]	= exports map (_ create node)
 
 						private val attributeUpdates:Vector[M=>Unit]	=
 								attributes flatMap { attr =>
