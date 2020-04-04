@@ -1,4 +1,5 @@
 target/
-versatz/
-doc/
 
+private.sbt
+doc/
+versatz/
