@@ -39,12 +39,12 @@ object View {
 						val selfHandles:Vector[H]	= exports map (_ create node)
 
 						private val attributeUpdates:Vector[M=>Unit]	=
-								attributes flatMap { attr =>
-									val base	= attr.setup(node, initial)
-									// NOTE this check is important, calling the updater on a static attribute will fail at runtime
-									if (attr.requiresUpdates)	Some(base)
-									else						None
-								}
+							attributes flatMap { attr =>
+								val base	= attr.setup(node, initial)
+								// NOTE this check is important, calling the updater on a static attribute will fail at runtime
+								if (attr.requiresUpdates)	Some(base)
+								else						None
+							}
 
 						// attach emitters, they don't get updated
 						emits foreach { _.setup(node, dispatch) }

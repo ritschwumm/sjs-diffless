@@ -15,22 +15,10 @@ object Emit {
 				(ev:E) => {
 					val action		= handler(target, ev)
 					val eventFlow	= dispatch(action)
-					applyEventFlow(ev, eventFlow)
+					eventFlow applyTo ev
 				}
 			)
 		}
-
-	def applyEventFlow(ev:Event, flow:EventFlow):Unit	= {
-		flow.defaultAction match {
-			case EventDefaultAction.Permit		=>
-			case EventDefaultAction.Prevent		=> ev.preventDefault()
-		}
-		flow.propagation match {
-			case EventPropagation.Propagate		=>
-			case EventPropagation.Stop			=> ev.stopPropagation()
-			case EventPropagation.StopImmediate	=> ev.stopImmediatePropagation()
-		}
-	}
 }
 
 /** tells an element to dispatch certain events */

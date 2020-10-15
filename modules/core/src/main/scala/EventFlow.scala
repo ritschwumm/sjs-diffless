@@ -1,5 +1,7 @@
 package sjs.diffless
 
+import org.scalajs.dom.raw._
+
 object EventFlow {
 	val permit	=
 		EventFlow(
@@ -16,4 +18,16 @@ final case class EventFlow(
 	def preventDefault:EventFlow			= copy(defaultAction	= EventDefaultAction.Prevent)
 	def stopPropagation:EventFlow			= copy(propagation		= EventPropagation.Stop)
 	def stopImmediatePropagation:EventFlow	= copy(propagation		= EventPropagation.StopImmediate)
+
+	def applyTo(ev:Event):Unit	= {
+		defaultAction match {
+			case EventDefaultAction.Permit		=>
+			case EventDefaultAction.Prevent		=> ev.preventDefault()
+		}
+		propagation match {
+			case EventPropagation.Propagate		=>
+			case EventPropagation.Stop			=> ev.stopPropagation()
+			case EventPropagation.StopImmediate	=> ev.stopImmediatePropagation()
+		}
+	}
 }

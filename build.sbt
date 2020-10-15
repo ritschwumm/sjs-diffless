@@ -1,6 +1,6 @@
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.23.0",
+	version			:= "0.24.0",
 
 	scalaVersion	:= "2.13.3",
 	scalacOptions	++= Seq(
@@ -42,7 +42,7 @@ lazy val `sjs-diffless-core`	=
 	.settings(
 		noTestSettings,
 		libraryDependencies ++= Seq(
-			"org.scala-js"	%%%	"scalajs-dom"	% "1.0.0"	% "compile"
+			"org.scala-js"	%%%	"scalajs-dom"	% "1.1.0"	% "compile"
 		)
 	)
 
