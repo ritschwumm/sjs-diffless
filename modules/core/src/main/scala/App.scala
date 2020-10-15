@@ -8,7 +8,7 @@ object App {
 		var model	= initial
 		var handles	= Vector.empty[H]
 
-		lazy val (handles1, update)	= view attach (container, model, dispatch)
+		lazy val (handles1, update)	= view.attach(container, model, dispatch)
 
 		def dispatch(action:A):EventFlow	= {
 			val (model1, flow)	= controller(model, action, handles)

@@ -8,8 +8,8 @@ import sjs.diffless.dom._
 /** starts up our little demo application */
 object Demo {
 	def main(args:Array[String]):Unit	= {
-		document addEventListener ("DOMContentLoaded", (_:Event) =>
-			App start (
+		document.addEventListener("DOMContentLoaded", (_:Event) =>
+			App.start(
 				container	= document.body,
 				initial		= Model.initial,
 				view		= Views.mainView,

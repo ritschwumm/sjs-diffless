@@ -10,7 +10,7 @@ object util {
 	//------------------------------------------------------------------------------
 
 	def runLater(action:()=>Unit):Unit	= {
-		RawTimers setTimeout (action, 1)
+		RawTimers.setTimeout(action, 1)
 	}
 
 	def runNow(action:()=>Unit):Unit	= {

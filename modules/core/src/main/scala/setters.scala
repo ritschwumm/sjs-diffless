@@ -204,7 +204,7 @@ trait setters extends attributes {
 	implicit val HTMLAnchorElement_mimeType				= AttributeAccess[mimeType.type,			HTMLAnchorElement,		String]								(_.mimeType	= _)
 	implicit val HTMLAnchorElement_text					= AttributeAccess[textAttr.type,			HTMLAnchorElement,		String]								(_.text	= _)
 	// TODO hack: as download is experimental, it's not in the API as a property yet
-	implicit val HTMLAnchorElement_download				= AttributeAccess[download.type,			HTMLAnchorElement,		String]								(_ setAttribute ("download", _))
+	implicit val HTMLAnchorElement_download				= AttributeAccess[download.type,			HTMLAnchorElement,		String]								(_.setAttribute ("download", _))
 
 
 	implicit val HTMLParamElement_value					= AttributeAccess[value.type,				HTMLParamElement,		String]								(_.value	= _)

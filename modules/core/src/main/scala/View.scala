@@ -40,16 +40,16 @@ object View {
 
 						private val attributeUpdates:Vector[M=>Unit]	=
 								attributes flatMap { attr =>
-									val base	= attr setup (node, initial)
+									val base	= attr.setup(node, initial)
 									// NOTE this check is important, calling the updater on a static attribute will fail at runtime
 									if (attr.requiresUpdates)	Some(base)
 									else						None
 								}
 
 						// attach emitters, they don't get updated
-						emits foreach { _ setup (node, dispatch) }
+						emits foreach { _.setup(node, dispatch) }
 
-						private val innerUpdater	= inner setup (initial, dispatch)
+						private val innerUpdater	= inner.setup(initial, dispatch)
 
 						// append child nodes
 						innerUpdater.active foreach node.appendChild
@@ -81,7 +81,7 @@ object View {
 														ptr	= ptr.nextSibling
 													}
 													else {
-														node insertBefore (childNode, ptr)
+														node.insertBefore(childNode, ptr)
 													}
 												}
 											}
@@ -131,7 +131,7 @@ object View {
 				instableNodes	= instableNodes,
 				setup	= (initial, dispatch) => {
 					new Updater[M,H] {
-						private val childUpdaters:Vector[Updater[M,H]]	= children map (_ setup (initial, dispatch))
+						private val childUpdaters:Vector[Updater[M,H]]	= children map (_.setup(initial, dispatch))
 
 						var active:Vector[Node]	= childUpdaters flatMap (_.active)
 						var handles:Vector[H]	= childUpdaters flatMap (_.handles)
@@ -165,7 +165,7 @@ object View {
 			instableNodes	= true,
 			setup	= (initial, dispatch) => {
 				new Updater[Vector[M],H] {
-					private var childUpdaters:Vector[Updater[M,H]]	= initial map { it => item setup (it, dispatch) }
+					private var childUpdaters:Vector[Updater[M,H]]	= initial map { it => item.setup(it, dispatch) }
 
 					var active:Vector[Node]	= childUpdaters flatMap (_.active)
 					var handles:Vector[H]	= childUpdaters flatMap (_.handles)
@@ -182,7 +182,7 @@ object View {
 								if (newSize > oldSize) {
 									// add appeared children
 									val expired	= (childUpdaters zip value) flatMap { case (u,v) => u update v }
-									val fresh	= (oldSize until newSize).toVector map { idx => item setup (value(idx), dispatch) }
+									val fresh	= (oldSize until newSize).toVector map { idx => item.setup(value(idx), dispatch) }
 									childUpdaters	++= fresh
 									active	= childUpdaters flatMap (_.active)
 									handles	= childUpdaters flatMap (_.handles)
@@ -225,7 +225,7 @@ object View {
 			instableNodes	= true,
 			setup	= (initial, dispatch) => {
 				new Updater[Vector[(ViewKey,M)],H] {
-					private var childOuts:Vector[(ViewKey,Updater[M,H])]	= initial map { case (k,v) => k -> (item setup (v, dispatch)) }
+					private var childOuts:Vector[(ViewKey,Updater[M,H])]	= initial map { case (k,v) => k -> (item.setup(v, dispatch)) }
 
 					var active:Vector[Node]	= childOuts flatMap { case (_, updater) => updater.active }
 					var handles:Vector[H]	= childOuts flatMap { case (_, updater) => updater.handles }
@@ -250,7 +250,7 @@ object View {
 													expired	++= old update part
 													key -> old
 												case None =>
-													val ng	= item setup (part, dispatch)
+													val ng	= item.setup(part, dispatch)
 													key -> ng
 											}
 										}
@@ -347,7 +347,7 @@ extends Child[Any,M,A,H] { self =>
 			requiresUpdates	= requiresUpdates,
 			instableNodes	= instableNodes,
 			setup	= (initial, dispatch) => {
-				setup(model(initial), action andThen dispatch) adapt (model, handle)
+				setup(model(initial), action andThen dispatch).adapt(model, handle)
 			}
 		)
 
@@ -378,7 +378,7 @@ extends Child[Any,M,A,H] { self =>
 			requiresUpdates	= requiresUpdates,
 			instableNodes	= instableNodes,
 			setup	= (initial, dispatch) => {
-				self setup (initial, func andThen dispatch)
+				self.setup(initial, func andThen dispatch)
 			}
 		)
 
@@ -387,7 +387,7 @@ extends Child[Any,M,A,H] { self =>
 			requiresUpdates	= requiresUpdates,
 			instableNodes	= instableNodes,
 			setup	= (initial, dispatch) => {
-				self setup (initial, dispatch) adaptHandle func
+				self.setup(initial, dispatch) adaptHandle func
 			}
 		)
 
@@ -419,7 +419,7 @@ extends Child[Any,M,A,H] { self =>
 					private var context			= initial._1
 
 					private val innerDispatch	= (action:A) => dispatch(actionFunc(context, action))
-					private val innerUpdater	= self setup (initial._2, innerDispatch)
+					private val innerUpdater	= self.setup(initial._2, innerDispatch)
 
 					def update(value:(C,M)):Vector[Node]	= {
 						context	= value._1
@@ -440,7 +440,7 @@ extends Child[Any,M,A,H] { self =>
 				new Updater[MM,H] {
 					private var model			= initial
 					private val innerDispatch	= (action:A) => dispatch(func(model, action))
-					private val innerUpdater	= self setup (initial, innerDispatch)
+					private val innerUpdater	= self.setup(initial, innerDispatch)
 
 					def update(value:MM):Vector[Node]	= {
 						model	= value
@@ -490,7 +490,7 @@ extends Child[Any,M,A,H] { self =>
 			requiresUpdates	= requiresUpdates,
 			instableNodes	= instableNodes,
 			setup	= (initial, dispatch) => {
-				setup(func(initial), dispatch) lively (alive, func)
+				setup(func(initial), dispatch).lively(alive, func)
 			}
 		)
 
@@ -528,7 +528,7 @@ extends Child[Any,M,A,H] { self =>
 									ptr	= ptr.nextSibling
 								}
 								else {
-									node insertBefore (childNode, ptr)
+									node.insertBefore(childNode, ptr)
 								}
 							}
 						}

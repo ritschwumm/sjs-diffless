@@ -1,14 +1,14 @@
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.22.0",
+	version			:= "0.23.0",
 
-	scalaVersion	:= "2.13.2",
+	scalaVersion	:= "2.13.3",
 	scalacOptions	++= Seq(
 		"-feature",
 		"-deprecation",
 		"-unchecked",
-		"-Xfatal-warnings",
-		"-Xlint"
+		"-Werror",
+		"-Xlint",
 		// "-Ymacro-debug-lite"
 	)
 ))
@@ -82,7 +82,7 @@ lazy val `sjs-diffless-example`	=
 				val attrd	= jsCompiler.value
 				val src		= attrd.data
 				val map		= attrd get scalaJSSourceMap getOrElse (sys error s"missing map file for $src")
-				// file names have been fixed with artifactPath and scalaJSLinkerConfig above
+				// file names have been fixed with artifactPath and scalaJSLinkerConfig below
 				(src, map)
 			}
 			val jsToCopy	=
@@ -113,8 +113,8 @@ lazy val `sjs-diffless-example`	=
 		scalaJSLinkerConfig		:= scalaJSLinkerConfig.value withRelativizeSourceMapBase Some((appSjs.value / "index.js").toURI),
 
 		// final name to ensure the .map reference doesn't have to be patched later
-		Compile / fastOptJS						/ artifactPath	:= appSjs.value / "index.js",
-		Compile / fullOptJS						/ artifactPath	:= appSjs.value / "index.js",
+		Compile / fastOptJS	/ artifactPath	:= appSjs.value / "index.js",
+		Compile / fullOptJS	/ artifactPath	:= appSjs.value / "index.js",
 
 		watchSources	:= watchSources.value :+ Watched.WatchSource(appSource.value)
 	)
