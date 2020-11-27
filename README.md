@@ -2,4 +2,4 @@ this is a small, experimental HTML view library for [scala-js](https://www.scala
 
 have a look at [Views.scala](modules/example/src/main/scala/Views.scala) to get an idea how views are created.
 
-to try out the todo-mv demo, just run ```sbt demo```.
+to try out the todo-mvc demo, just run ```sbt demo```.
