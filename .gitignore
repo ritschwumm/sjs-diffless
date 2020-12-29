@@ -1,5 +1,12 @@
 target/
+/.bsp/
 
 private.sbt
 doc/
 versatz/
+
+metals.sbt
+.metals/
+.bloop/
+
+/.vscode/
