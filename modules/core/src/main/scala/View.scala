@@ -5,6 +5,9 @@ import org.scalajs.dom.raw._
 import sjs.diffless.dom._
 
 object View {
+	private type Setup[M,A,H]	= (M, A=>EventFlow) => Updater[M,H]
+
+	/** this is used to support the tag dsl */
 	def elementFromChildren[N<:Node,M,A,H](tag:Tag[N], children:Vector[Child[N,M,A,H]]):View[M,A,H] = {
 		val attributes:Vector[Attribute[N,M]]	= children collect { case x:Attribute[N,M]	=> x }
 		val emits:Vector[Emit[N,A]]				= children collect { case x:Emit[N,A]		=> x }
@@ -19,7 +22,16 @@ object View {
 		)
 	}
 
-	// NOTE maybe converting attrs to an array would make sense here
+	/**
+	 * build a View for a single html tag
+	 *
+	 * takes
+	 * - which tag to build
+	 * - the tag's attributes
+	 * - which events to emit
+	 * - the child elements of the tag
+	 * - what's exported for the tag
+	 */
 	def element[N<:Node,M,A,H](
 		tag:Tag[N],
 		attributes:Vector[Attribute[N,M]],
@@ -28,6 +40,8 @@ object View {
 		exports:Vector[Export[N,H]]
 	):View[M,A,H] =
 		{
+			// NOTE maybe converting attrs to an array would make sense here
+
 			val requiresUpdates	= inner.requiresUpdates || (attributes exists (_.requiresUpdates))
 			View(
 				requiresUpdates	= requiresUpdates,
@@ -104,6 +118,7 @@ object View {
 			)
 		}
 
+	/** a view which never puts any nodes into its parent */
 	def empty[M,A,H]:View[M,A,H]	=
 		View(
 			requiresUpdates	= false,
@@ -117,9 +132,11 @@ object View {
 			}
 		)
 
+	/** convenience function for #sequence */
 	def vararg[M,A,H](children:View[M,A,H]*):View[M,A,H]	=
 		sequence(children.toVector)
 
+	/** concatenates a fixed sequence of views into a larger one */
 	def sequence[M,A,H](children:Vector[View[M,A,H]]):View[M,A,H]	=
 			 if (children.isEmpty)		empty
 		else if (children.size == 1)	children.head
@@ -159,6 +176,10 @@ object View {
 			)
 		}
 
+	/**
+	 * lifts a view for a single item into a view of a vector of such items
+	 * for stateful views like input tags, use #keyed instead
+	 */
 	def vector[M,A,H](item:View[M,A,H]):View[Vector[M],A,H]	=
 		View(
 			requiresUpdates	= true,
@@ -212,6 +233,7 @@ object View {
 			}
 		)
 
+	/** convenience function for keyed where the key can be derived from the item */
 	def keyedBy[M,A,H](key:M=>ViewKey, itemView:View[M,A,H]):View[Vector[M],A,H]	=
 		keyed(itemView) adaptModel { items =>
 			items map { item =>
@@ -219,6 +241,11 @@ object View {
 			}
 		}
 
+	/**
+	 * lifts a view for a single item into a view of a vector of those items
+	 * individual items are identified by a #ViewKey which allows
+	 * keeping the state of a stateful view like e.g. an input tag
+	 */
 	def keyed[M,A,H](item:View[M,A,H]):View[Vector[(ViewKey,M)],A,H]	=
 		View(
 			requiresUpdates	= true,
@@ -267,30 +294,28 @@ object View {
 			}
 		)
 
-	// BETTER optimize?
+	/** lifts a view for an item to a view which optionally display this item */
 	def optional[M,A,H](item:View[M,A,H]):View[Option[M],A,H]	=
+		// BETTER optimize?
 		vector[M,A,H](item) adaptModel (_.toVector)
 
-	// BETTER optimize?
+	/** lifts two views into a view which displays either one or the other */
 	def either[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[Either[M1,M2],A,H]	=
+		// BETTER optimize?
 		vararg(
 			vector(item1) adaptModel (_.swap.toOption.toVector),
 			vector(item2) adaptModel (_.toOption.toVector)
 		)
-		/*
-		vararg(
-			optional(item1) adaptModel (_.swap.toOption),
-			optional(item2) adaptModel (_.toOption)
-		)
-		*/
 
-	// BETTER optimize?
+	/** lifts two views into a view which displays both views, one after another */
 	def pair[M1,M2,A,H](item1:View[M1,A,H], item2:View[M2,A,H]):View[(M1,M2),A,H]	=
+		// BETTER optimize?
 		vararg(
 			item1 adaptModel (_._1),
 			item2 adaptModel (_._2)
 		)
 
+	/** a primitive view displaying a text */
 	def text[A,H]:View[String,A,H]	=
 		View(
 			requiresUpdates	= true,
@@ -308,7 +333,10 @@ object View {
 			}
 		)
 
-	/** behaves like text.contraMap(constant(value)) */
+	/**
+	 * a primitive view displaying a static text
+	 * behaves like text.contraMap(constant(value))
+	 */
 	def literal[M,A,H](value:String):View[M,A,H]	=
 		View(
 			requiresUpdates	= false,
@@ -324,17 +352,17 @@ object View {
 		)
 }
 
-/** defines a DOM node, tells an element to put it inside */
+/** defines a list of DOM nodes by how to put them into a parent element */
 final case class View[-M,+A,+H](
 	/*
 	!requiresUpdates	implies	!instableNodes
 	instableNodes		implies	requiresUpdates
 	*/
 
-	/// when this is false, there's no need to call update at all because the view is completely static
+	// when this is false, there's no need to call update at all because the view is completely static
 	requiresUpdates:Boolean,
 
-	/// when this is false, the View's Updater always has the same active Nodes - but no necessarily the same handles, because those are gathered transitively
+	// when this is false, the View's Updater always has the same active Nodes - but no necessarily the same handles, because those are gathered transitively
 	instableNodes:Boolean,
 
 	setup:(M, A=>EventFlow) => Updater[M,H]
@@ -343,73 +371,59 @@ extends Child[Any,M,A,H] { self =>
 	def apply[MM](func:MM=>M):View[MM,A,H]	= adaptModel(func)
 
 	def adapt[MM,AA,HH](model:MM=>M, action:A=>AA, handle:H=>HH):View[MM,AA,HH]	=
-		View(
-			requiresUpdates	= requiresUpdates,
-			instableNodes	= instableNodes,
-			setup	= (initial, dispatch) => {
-				setup(model(initial), action andThen dispatch).adapt(model, handle)
-			}
-		)
-
-	def adaptModelAndAction[MM,AA](model:MM=>M, action:A=>AA):View[MM,AA,H]	=
-		adapt(model, action, identity)
+		withSetup[MM,AA,HH] { (initial, dispatch) =>
+			setup(model(initial), action andThen dispatch).adapt(model, handle)
+		}
 
 	// TODO auto-cache?
-	def adaptModel[MM](func:MM=>M):View[MM,A,H]	=
-		View(
-			requiresUpdates	= requiresUpdates,
-			instableNodes	= instableNodes,
-			setup	= (initial, dispatch) => {
-				setup(func(initial), dispatch) adaptModel func
-			}
-		)
-
-	def adaptActionAndHandle[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	=
-		View(
-			requiresUpdates	= requiresUpdates,
-			instableNodes	= instableNodes,
-			setup	= (initial, dispatch) => {
-				setup(initial, action andThen dispatch) adaptHandle handle
-			}
-		)
+	//adapt(identity, identity, identity)
+	def adaptModel[MM](model:MM=>M):View[MM,A,H]	=
+		withSetup[MM,A,H] { (initial, dispatch) =>
+			setup(model(initial), dispatch) adaptModel model
+		}
 
 	def adaptAction[AA](func:A=>AA):View[M,AA,H]	=
-		View(
-			requiresUpdates	= requiresUpdates,
-			instableNodes	= instableNodes,
-			setup	= (initial, dispatch) => {
-				self.setup(initial, func andThen dispatch)
-			}
-		)
+		//adapt(identity, action, identity)
+		withSetup[M,AA,H] { (initial, dispatch) =>
+			setup(initial, func andThen dispatch)
+		}
 
-	def adaptHandle[HH](func:H=>HH):View[M,A,HH]	=
-		View(
-			requiresUpdates	= requiresUpdates,
-			instableNodes	= instableNodes,
-			setup	= (initial, dispatch) => {
-				self.setup(initial, dispatch) adaptHandle func
-			}
-		)
+	def adaptHandle[HH](handle:H=>HH):View[M,A,HH]	=
+		//adapt(identity, identity, handle)
+		withSetup[M,A,HH] { (initial, dispatch) =>
+			setup(initial, dispatch) adaptHandle handle
+		}
 
+	def adaptModelAndAction[MM,AA](model:MM=>M, action:A=>AA):View[MM,AA,H]	=
+		//adapt(model, action, identity)
+		withSetup[MM,AA,H] { (initial, dispatch) =>
+			setup(model(initial), action andThen dispatch).adaptModel(model)
+		}
+
+	def adaptActionAndHandle[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	=
+		//adapt(identity, action, handle)
+		withSetup[M,AA,HH] { (initial, dispatch) =>
+			setup(initial, action andThen dispatch) adaptHandle handle
+		}
+
+	/** removes all exported handles */
 	def dropHandle:View[M,A,Nothing]	=
-		View(
-			requiresUpdates	= requiresUpdates,
-			instableNodes	= instableNodes,
-			setup	= (initial, dispatch) => {
-				self.setup(initial, dispatch).dropHandle
-			}
-		)
+		withSetup[M,A,Nothing] { (initial, dispatch) =>
+			setup(initial, dispatch).dropHandle
+		}
 
 	/*
 	def modifyHandles[HH](func:Vector[H]=>Vector[HH]):View[M,A,HH]	=
-		View(
-			requiresUpdates	= requiresUpdates,
-			setup	= (initial, dispatch) => {
-				self setup (initial, dispatch) modifyHandles func
-			}
-		)
+		withSetup[M,A,HH] { (initial, dispatch) =>
+			self setup (initial, dispatch) modifyHandles func
+		}
 	*/
 
+	/**
+	 * the counterpart to View.keyed acting on actions and handles instead of the model
+	 * - a context part which can be used to modify actions and handles
+	 * - a model part which is passed on to the original view
+	 */
 	def contextual[C,AA,HH](actionFunc:(C,A)=>AA, handleFunc:(C,H)=>HH):View[(C,M),AA,HH]	=
 		View(
 			requiresUpdates	= true,
@@ -462,15 +476,14 @@ extends Child[Any,M,A,H] { self =>
 		)
 	*/
 
+	/** adds model caching unless this view is static anyway */
 	def caching:View[M,A,H]	=
 		if (requiresUpdates) {
-			View(
-				requiresUpdates	= requiresUpdates,
-				instableNodes	= instableNodes,
-				setup	= (initial, dispatch) => {
+			withSetup[M,A,H] {
+				(initial, dispatch) => {
 					setup(initial, dispatch).caching(initial)
 				}
-			)
+			}
 		}
 		else this
 
@@ -496,6 +509,13 @@ extends Child[Any,M,A,H] { self =>
 
 	//------------------------------------------------------------------------------
 
+	/**
+	 * installs this view into some parent node and takes over management of all child nodes of it.
+	 * requires an initial value for the model and a way to dispatch with events.
+	 * returns the exported handles of the view after setup and an update function
+	 * to be called on model changes which returns a new set of exported handles
+	 * when it's called.
+	 */
 	def attach(node:Node, initial:M, dispatch:A=>EventFlow):(Vector[H], M=>Vector[H])	= {
 		while (node.firstChild != null) {
 			node removeChild node.firstChild
@@ -539,4 +559,11 @@ extends Child[Any,M,A,H] { self =>
 
 		innerUpdater.handles -> update
 	}
+
+	@inline private def withSetup[MM, AA, HH](setup:View.Setup[MM,AA,HH]):View[MM,AA,HH]	=
+		View(
+			requiresUpdates	= requiresUpdates,
+			instableNodes	= instableNodes,
+			setup			= setup
+		)
 }

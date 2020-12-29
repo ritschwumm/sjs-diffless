@@ -16,16 +16,4 @@ object util {
 	def runNow(action:()=>Unit):Unit	= {
 		action()
 	}
-
-	//------------------------------------------------------------------------------
-
-	/*
-	implicit class AnyExt[T](peer:T) {
-		def into[U](func:T=>U):U	= func(peer)
-
-		def matchOption[U](pf:PartialFunction[T,U]):Option[U]	=
-			if (pf isDefinedAt peer)	Some(pf(peer))
-			else						None
-	}
-	*/
 }

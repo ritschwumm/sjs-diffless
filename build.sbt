@@ -1,6 +1,8 @@
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.27.0",
+	version			:= "0.28.0",
 
 	scalaVersion	:= "2.13.4",
 	scalacOptions	++= Seq(
@@ -9,7 +11,6 @@ inThisBuild(Seq(
 		"-unchecked",
 		"-Werror",
 		"-Xlint",
-		// "-Ymacro-debug-lite"
 	)
 ))
 
