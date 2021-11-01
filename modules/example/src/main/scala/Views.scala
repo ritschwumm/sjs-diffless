@@ -7,7 +7,7 @@ import sjs.diffless.imports._
 
 /** all our views in one place */
 object Views {
-	lazy val mainView:View[Model,Action,Exported]	=
+	lazy val mainView:View[Model,Action,Handle]	=
 		div(
 			className	:= "main",
 			headerView,
@@ -15,14 +15,14 @@ object Views {
 			footerView
 		)
 
-	lazy val headerView:View[Model,Action,Exported]	=
+	lazy val headerView:View[Model,Action,Handle]	=
 		header(
 			className	:= "header",
 			completeView(_.tasks),
 			createView
 		)
 
-	lazy val completeView:View[Vector[Task],Action,Exported]	=
+	lazy val completeView:View[Vector[Task],Action,Handle]	=
 		input(
 			className	:= "complete",
 			`type`		:= "checkbox",
@@ -31,7 +31,7 @@ object Views {
 			onInput		|= { (target, event) => Action.Complete }
 		)
 
-	lazy val createView:View[Model,Action,Exported]	=
+	lazy val createView:View[Model,Action,Handle]	=
 		input(
 			className	:= "create",
 			`type`		:= "text",
@@ -39,35 +39,35 @@ object Views {
 			value		~= (_.creating),
 			onInput		|= { (target, event) => Action.Creating(target.value)								},
 			onKeyUp		|= { (target, event) => if (event.key == "Enter") Action.Create else Action.Skip	},
-			Export { target =>
-				Exported.CreateText(
-					focus	= () => target.focus()
+			attach { self =>
+				Handle.CreateText(
+					focus	= () => self.focus()
 				)
 			}
 		)
 
-	lazy val taskListView:View[Vector[Task],Action,Exported]	=
+	lazy val taskListView:View[Vector[Task],Action,Handle]	=
 		ul(
 			className	:= "task-list",
 			taskItemViewEmbed
 		)
 
-	lazy val taskItemViewEmbed:View[Vector[Task],Action,Exported]	= {
+	lazy val taskItemViewEmbed:View[Vector[Task],Action,Handle]	= {
 		val keyify:Task=>(String,Task)	= it => it.id.value -> it
 		keyed(taskItemEmbeddedView)(_ map keyify)
 	}
 
-	lazy val taskItemEmbeddedView:View[Task,Action,Exported]	=
+	lazy val taskItemEmbeddedView:View[Task,Action,Handle]	=
 		taskItemView
 		.contextual (
 			actionFunc	= Action.Task.apply,
-			handleFunc	= Exported.Task.apply
+			handleFunc	= Handle.Task.apply
 		)
 		.adaptModel { task =>
 			task.id -> task.data
 		}
 
-	lazy val taskItemView:View[TaskData,TaskAction,TaskExported]	=
+	lazy val taskItemView:View[TaskData,TaskAction,TaskHandle]	=
 		li(
 			className	:= "task-item",
 			onDblClick	|= { (target, model) => TaskAction.Edit },
@@ -104,9 +104,9 @@ object Views {
 					else if (event.key == "Escape")	TaskAction.Rollback
 					else							TaskAction.Skip
 				},
-				Export { target =>
-					TaskExported.Editor(
-						() => target.focus()
+				attach { self =>
+					TaskHandle.Editor(
+						() => self.focus()
 					)
 				}
 			)

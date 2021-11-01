@@ -10,13 +10,13 @@ object View {
 		val attributes:Vector[Attribute[N,M]]	= children collect { case x:Attribute[N,M]	=> x }
 		val emits:Vector[Emit[N,A]]				= children collect { case x:Emit[N,A]		=> x }
 		val inners:Vector[View[M,A,H]]			= children collect { case x:View[M,A,H]		=> x }
-		val exports:Vector[Export[N,H]]			= children collect { case x:Export[N,H]		=> x }
+		val attachments:Vector[Attachment[N,H]]	= children collect { case x:Attachment[N,H]		=> x }
 		element(
 			tag			= tag,
 			attributes	= attributes,
 			emits		= emits,
 			inner		= sequence(inners),
-			exports		= exports
+			attachments	= attachments
 		)
 	}
 
@@ -28,14 +28,14 @@ object View {
 	 * - the tag's attributes
 	 * - which events to emit
 	 * - the child elements of the tag
-	 * - what's exported for the tag
+	 * - how handles are to be attached to the tag
 	 */
 	def element[N<:Node,M,A,H](
 		tag:Tag[N],
 		attributes:Vector[Attribute[N,M]],
 		emits:Vector[Emit[N,A]],
 		inner:View[M,A,H],
-		exports:Vector[Export[N,H]]
+		attachments:Vector[Attachment[N,H]]
 	):View[M,A,H] =
 		{
 			// NOTE maybe converting attrs to an array would make sense here
@@ -48,7 +48,7 @@ object View {
 					new Updater[M,H] {
 						private val node	= tag.create()
 
-						val selfHandles:Vector[H]	= exports map (_ create node)
+						val selfHandles:Vector[H]	= attachments map (_ create node)
 
 						private val attributeUpdates:Vector[M=>Unit]	=
 							attributes flatMap { attr =>
@@ -136,8 +136,8 @@ object View {
 
 	/** concatenates a fixed sequence of views into a larger one */
 	def sequence[M,A,H](children:Vector[View[M,A,H]]):View[M,A,H]	=
-			 if (children.isEmpty)		empty
-		else if (children.size == 1)	children.head
+		if		(children.isEmpty)		empty
+		else if	(children.size == 1)	children.head
 		else {
 			val requiresUpdates	= children exists (_.requiresUpdates)
 			val instableNodes	= children exists (_.instableNodes)
@@ -404,7 +404,7 @@ extends Child[Any,M,A,H] { self =>
 			setup(initial, action andThen dispatch) adaptHandle handle
 		}
 
-	/** removes all exported handles */
+	/** removes all attached handles */
 	def dropHandle:View[M,A,Nothing]	=
 		withSetup[M,A,Nothing] { (initial, dispatch) =>
 			setup(initial, dispatch).dropHandle
@@ -510,8 +510,8 @@ extends Child[Any,M,A,H] { self =>
 	/**
 	 * installs this view into some parent node and takes over management of all child nodes of it.
 	 * requires an initial value for the model and a way to dispatch with events.
-	 * returns the exported handles of the view after setup and an update function
-	 * to be called on model changes which returns a new set of exported handles
+	 * returns the attached handles of the view after setup and an update function
+	 * to be called on model changes which returns a new set of attached handles
 	 * when it's called.
 	 */
 	def attach(node:Node, initial:M, dispatch:A=>EventFlow):(Vector[H], M=>Vector[H])	= {

@@ -12,7 +12,7 @@ object Demo {
 				container	= document.body,
 				initial		= Model.initial,
 				view		= Views.mainView,
-				controller	= Controller.handle,
+				controller	= Controller.execute,
 				boot		= Action.Boot
 			)
 		)

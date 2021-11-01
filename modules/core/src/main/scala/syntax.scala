@@ -10,7 +10,7 @@ trait syntax {
 	implicit class TagExt[N<:Node](peer:Tag[N]) {
 		/**
 		 * allows using a Tag as a factory of the corresponding html element when provided
-		 * with attribute values, child elements, event emitters and exports.
+		 * with attribute values, child elements, event emitters and attachments.
 		 */
 		def apply[M,A,H](children:Child[N,M,A,H]*):View[M,A,H]	=
 			View.elementFromChildren(peer, children.toVector)

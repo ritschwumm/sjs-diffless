@@ -6,9 +6,9 @@ object imports extends imports
 trait imports
 	extends syntax
 	with views
-	with exports
 	with tags
 	with attributes
-	with setters
 	with derived
+	with setters
 	with emits
+	with attachments
