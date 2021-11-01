@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom.raw._
+import org.scalajs.dom._
 
 object App {
 	/** a simple way to start up an application */

@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom.raw._
+import org.scalajs.dom._
 
 object derived extends derived
 

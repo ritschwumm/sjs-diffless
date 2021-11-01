@@ -1,13 +1,13 @@
 package sjs.diffless.demo
 
 import scala.scalajs.js
-import org.scalajs.dom.ext.LocalStorage
+import org.scalajs.dom._
 
 object Persistence {
 	private val key	= "todomvc-diffless"
 
 	def load():Option[Model]	= {
-		LocalStorage(key) map {	str =>
+		Option(window.localStorage.getItem(key)) map {	str =>
 			val json	= js.JSON parse str
 			readModel(json)
 		}
@@ -36,7 +36,7 @@ object Persistence {
 	def save(model:Model):Unit	= {
 		val json	= writeModel(model)
 		val str		= js.JSON stringify json
-		LocalStorage(key)	= str
+		window.localStorage.setItem(key, str)
 	}
 
 	private def writeModel(model:Model):js.Dynamic	=

@@ -1,8 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom.raw._
-
-import sjs.diffless.dom._
+import org.scalajs.dom._
 
 object View {
 	private type Setup[M,A,H]	= (M, A=>EventFlow) => Updater[M,H]
@@ -315,7 +313,7 @@ object View {
 			item2 adaptModel (_._2)
 		)
 
-	/** a primitive view displaying a text */
+	/** a primitive view displaying some dynamically changing text */
 	def text[A,H]:View[String,A,H]	=
 		View(
 			requiresUpdates	= true,
@@ -334,7 +332,7 @@ object View {
 		)
 
 	/**
-	 * a primitive view displaying a static text
+	 * a primitive view displaying some static text
 	 * behaves like text.contraMap(constant(value))
 	 */
 	def literal[M,A,H](value:String):View[M,A,H]	=

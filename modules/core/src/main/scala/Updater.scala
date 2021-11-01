@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom.raw._
+import org.scalajs.dom._
 
 /** updates zero or more DOM nodes when the model changes */
 abstract class Updater[-M,+H] { self =>
