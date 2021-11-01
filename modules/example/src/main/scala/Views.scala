@@ -79,13 +79,9 @@ object Views {
 				onInput		|= { (target, event) => TaskAction.Toggle }
 			),
 			div(
-				//className	:= "task-item-text",
 				classSet	~= { task =>
-					(
-						if (task.completed) Set("task-item-text-completed")
-						else				Set.empty[String]
-					) +
-					"task-item-text"
+					if (task.completed) Set("task-item-text", "task-item-text-completed")
+					else				Set("task-item-text")
 				},
 				displayed	~= (!_.editing),
 				text(_.text)
