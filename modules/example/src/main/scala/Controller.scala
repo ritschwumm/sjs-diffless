@@ -1,7 +1,7 @@
 package sjs.diffless.demo
 
 import sjs.diffless.EventFlow
-import sjs.diffless.demo.util._
+import sjs.diffless.demo.util.*
 
 /** transforms the application state for each requested action */
 object Controller {

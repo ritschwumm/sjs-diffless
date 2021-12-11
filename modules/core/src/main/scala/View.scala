@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
 object View {
 	private type Setup[M,A,H]	= (M, A=>EventFlow) => Updater[M,H]

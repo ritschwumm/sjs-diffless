@@ -1,8 +1,8 @@
 package sjs.diffless.demo
 
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
-import sjs.diffless._
+import sjs.diffless.*
 
 /** starts up our little demo application */
 object Demo {

@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
 /** pseudo-attributes which have turned out to be useful */
 object derived {

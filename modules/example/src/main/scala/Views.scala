@@ -1,6 +1,6 @@
 package sjs.diffless.demo
 
-import sjs.diffless._
+import sjs.diffless.*
 import sjs.diffless.imports.{ given, * }
 
 /** all our views in one place */

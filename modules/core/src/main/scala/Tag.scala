@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
 /** represents an HTML tag and know the DOM type representing this tag */
 final case class Tag[N](name:String) {

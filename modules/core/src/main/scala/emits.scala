@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
 /** event emitters - prefer these over plain attribute setters */
 object emits {

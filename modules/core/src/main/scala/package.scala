@@ -1,5 +1,3 @@
-package sjs
+package sjs.diffless
 
-package object diffless {
-	type ViewKey = String
-}
+type ViewKey = String

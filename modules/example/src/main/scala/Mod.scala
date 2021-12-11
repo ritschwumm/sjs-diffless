@@ -1,6 +1,6 @@
 package sjs.diffless.demo
 
-import sjs.diffless.demo.util._
+import sjs.diffless.demo.util.*
 
 object Mod {
 	def identity[T]:Mod[T,T]				= Mod(func => func)

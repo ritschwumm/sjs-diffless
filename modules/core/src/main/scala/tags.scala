@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
 /** Tag values for all HTML tags */
 object tags {

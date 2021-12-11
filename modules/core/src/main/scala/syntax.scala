@@ -1,7 +1,7 @@
 package sjs.diffless
 
 import scala.scalajs.js
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
 /** syntax extensions to have nice and clean DSL */
 object syntax {

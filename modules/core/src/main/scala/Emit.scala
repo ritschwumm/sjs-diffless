@@ -1,6 +1,6 @@
 package sjs.diffless
 
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
 object Emit {
 	def emitBuilder[N,M,A,E<:Event](attach:(N,E=>Unit)=>Unit):EmitBuilder[N,E]	= new EmitBuilder[N,E](attach)

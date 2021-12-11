@@ -1,7 +1,7 @@
 package sjs.diffless.demo
 
 import scala.scalajs.js
-import org.scalajs.dom._
+import org.scalajs.dom.*
 
 object Persistence {
 	private val key	= "todomvc-diffless"
@@ -42,7 +42,7 @@ object Persistence {
 	private def writeModel(model:Model):js.Dynamic	=
 		js.Dynamic.literal(
 			creating	= model.creating,
-			tasks		= js.Array((model.tasks map writeTask):_*),
+			tasks		= js.Array((model.tasks map writeTask)*),
 			filter		= model.filter map (js.Any.fromBoolean) getOrElse null
 		)
 
