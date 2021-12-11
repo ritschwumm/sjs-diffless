@@ -30,7 +30,7 @@ trait syntax {
 
 	implicit class AttributeKeyEmitExt[K](peer:K) {
 		/** attach an event listener to the surrounding html element */
-		def |=[N,A,E<:Event](handler:(N,E)=>A)(implicit ev:AttributeAccess[K,N,js.Function1[E,_]]):Emit[N,A]	= {
+		def |=[N,A,E<:Event](handler:(N,E)=>A)(implicit ev:AttributeAccess[K,N,js.Function1[E,?]]):Emit[N,A]	= {
 			val attach:(N,E=>Unit)=>Unit	= (n,ae) => ev.setter(n, ae)
 			Emit.action(attach, handler)
 		}
