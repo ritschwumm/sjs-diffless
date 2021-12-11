@@ -2,10 +2,8 @@ package sjs.diffless
 
 import org.scalajs.dom._
 
-object tags extends tags
-
 /** Tag values for all HTML tags */
-trait tags {
+object tags {
 	val a			:Tag[HTMLAnchorElement]				= Tag[HTMLAnchorElement]("a")
 	val abbr		:Tag[HTMLElement]					= Tag[HTMLElement]("abbr")
 	val address		:Tag[HTMLElement]					= Tag[HTMLElement]("address")

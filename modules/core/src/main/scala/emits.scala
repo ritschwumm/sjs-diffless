@@ -2,10 +2,8 @@ package sjs.diffless
 
 import org.scalajs.dom._
 
-object emits extends emits
-
 /** event emitters - prefer these over plain attribute setters */
-trait emits {
+object emits {
 	def onCopy				[N<:Element]:Emit.EmitBuilder[N,ClipboardEvent]		= Emit emitBuilder (_.oncopy	= _)
 	def onCut				[N<:Element]:Emit.EmitBuilder[N,ClipboardEvent]		= Emit emitBuilder (_.oncut	= _)
 	def onPaste				[N<:Element]:Emit.EmitBuilder[N,ClipboardEvent]		= Emit emitBuilder (_.onpaste	= _)

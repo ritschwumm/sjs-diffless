@@ -2,10 +2,8 @@ package sjs.diffless
 
 import org.scalajs.dom._
 
-object derived extends derived
-
 /** pseudo-attributes which have turned out to be useful */
-trait derived {
+object derived {
 	val displayed:Attribute[HTMLElement,Boolean]	=
 		Attribute.dynamic[HTMLElement,Boolean] { (node, value) =>
 			node.style.display	= if (value) "" else "none"

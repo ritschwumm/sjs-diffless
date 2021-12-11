@@ -1,9 +1,7 @@
 package sjs.diffless.demo
 
-//import org.scalajs.dom.raw._
-
 import sjs.diffless._
-import sjs.diffless.imports._
+import sjs.diffless.imports.{ given, * }
 
 /** all our views in one place */
 object Views {

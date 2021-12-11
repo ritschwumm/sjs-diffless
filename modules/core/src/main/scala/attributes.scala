@@ -1,9 +1,7 @@
 package sjs.diffless
 
-object attributes extends attributes
-
 /** html attributes, functionality comes from the AttributeSetter type class */
-trait attributes {
+object attributes {
 	object accept
 	object acceptCharset
 	object accessKey

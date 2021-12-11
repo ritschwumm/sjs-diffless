@@ -1,9 +1,7 @@
 package sjs.diffless
 
-object views extends views
-
 /** syntax provider for views */
-trait views {
+object views {
 	def empty[M,A,H]:View[M,A,H]															= View.empty
 	def vararg[M,A,H](children:View[M,A,H]*):View[M,A,H]									= View.vararg	(children:_*)
 	def sequence[M,A,H](children:Vector[View[M,A,H]]):View[M,A,H]							= View.sequence	(children)
