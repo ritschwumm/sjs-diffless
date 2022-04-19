@@ -1,7 +1,7 @@
 package sjs.diffless
 
 import scala.scalajs.js
-import org.scalajs.dom.raw.*
+import org.scalajs.dom.*
 
 import attributes.*
 
