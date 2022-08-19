@@ -1,18 +1,16 @@
 package sjs.diffless.demo
 
-object Action {
-	case object	Skip									extends Action
-	case object	Boot									extends Action
+/** every action the user can request */
+enum Action {
+	case Skip
+	case Boot
 
-	case object	Complete								extends Action
-	final case class	Creating(text:String)			extends Action
-	case object	Create									extends Action
+	case Complete
+	case Creating(text:String)
+	case Create
 
-	final case class	Task(id:TaskId, sub:TaskAction)	extends Action
+	case Task(id:TaskId, sub:TaskAction)
 
-	final case class	Filter(state:Option[Boolean])	extends Action
-	case object	Clear									extends Action
+	case Filter(state:Option[Boolean])
+	case Clear
 }
-
-/** sum type encompassing every action the user can request */
-sealed trait Action
