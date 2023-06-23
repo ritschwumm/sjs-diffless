@@ -2,9 +2,9 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.41.0",
+	version			:= "0.42.0",
 
-	scalaVersion	:= "3.2.1",
+	scalaVersion	:= "3.2.2",
 	scalacOptions	++= Seq(
 		"-feature",
 		"-deprecation",
@@ -46,7 +46,7 @@ lazy val `sjs-diffless-core`	=
 	.settings(
 		noTestSettings,
 		libraryDependencies ++= Seq(
-			"org.scala-js"	%%%	"scalajs-dom"	% "2.3.0"	% "compile"
+			"org.scala-js"	%%%	"scalajs-dom"	% "2.4.0"	% "compile"
 		)
 	)
 
