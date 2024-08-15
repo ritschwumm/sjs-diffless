@@ -2,9 +2,9 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.46.0",
+	version			:= "0.47.0",
 
-	scalaVersion	:= "3.3.0",
+	scalaVersion	:= "3.4.0",
 	scalacOptions	++= Seq(
 		"-feature",
 		"-deprecation",
@@ -25,7 +25,7 @@ lazy val noTestSettings	=
 	)
 
 lazy val `sjs-diffless` =
-	(project in file("."))
+	project.in(file("."))
 	.aggregate(
 		`sjs-diffless-core`,
 		`sjs-diffless-example`
@@ -39,7 +39,7 @@ lazy val `sjs-diffless` =
 //------------------------------------------------------------------------------
 
 lazy val `sjs-diffless-core`	=
-	(project in file("modules/core"))
+	project.in(file("modules/core"))
 	.enablePlugins(
 		ScalaJSPlugin
 	)
@@ -47,7 +47,7 @@ lazy val `sjs-diffless-core`	=
 	.settings(
 		noTestSettings,
 		libraryDependencies ++= Seq(
-			"org.scala-js"	%%%	"scalajs-dom"	% "2.6.0"	% "compile"
+			"org.scala-js"	%%%	"scalajs-dom"	% "2.8.0"	% "compile"
 		)
 	)
 
@@ -68,7 +68,7 @@ val jsCompiler	=
 	}
 
 lazy val `sjs-diffless-example`	=
-	(project in file("modules/example"))
+	project.in(file("modules/example"))
 	.enablePlugins(
 		ScalaJSPlugin
 	)

@@ -98,7 +98,7 @@ object Views {
 				onInput		|= { (target, event) => TaskAction.Change(target.value)	},
 				onBlur		|= { (target, event) => TaskAction.Commit				},
 				onKeyUp		|= { (target, event) =>
-						 if (event.key == "Enter") 	TaskAction.Commit
+					if		(event.key == "Enter")	TaskAction.Commit
 					else if (event.key == "Escape")	TaskAction.Rollback
 					else							TaskAction.Skip
 				},

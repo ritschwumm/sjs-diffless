@@ -7,8 +7,8 @@ object Persistence {
 	private val key	= "todomvc-diffless"
 
 	def load():Option[Model]	= {
-		Option(window.localStorage.getItem(key)) map {	str =>
-			val json	= js.JSON parse str
+		Option(window.localStorage.getItem(key)).map{ str =>
+			val json	= js.JSON.parse(str)
 			readModel(json)
 		}
 	}
@@ -16,7 +16,7 @@ object Persistence {
 	private def readModel(json:js.Dynamic):Model	=
 		Model(
 			creating	= json.creating.asInstanceOf[String],
-			tasks		= json.tasks.asInstanceOf[js.Array[js.Dynamic]].toArray[js.Dynamic].toVector map readTask,
+			tasks		= json.tasks.asInstanceOf[js.Array[js.Dynamic]].toArray[js.Dynamic].toVector.map(readTask),
 			filter		= if (json.filter == null) None else Some(json.filter.asInstanceOf[Boolean])
 		)
 
@@ -35,15 +35,15 @@ object Persistence {
 
 	def save(model:Model):Unit	= {
 		val json	= writeModel(model)
-		val str		= js.JSON stringify json
+		val str		= js.JSON.stringify(json)
 		window.localStorage.setItem(key, str)
 	}
 
 	private def writeModel(model:Model):js.Dynamic	=
 		js.Dynamic.literal(
 			creating	= model.creating,
-			tasks		= js.Array((model.tasks map writeTask)*),
-			filter		= model.filter map (js.Any.fromBoolean) getOrElse null
+			tasks		= js.Array((model.tasks.map(writeTask))*),
+			filter		= model.filter.map(js.Any.fromBoolean).getOrElse(null)
 		)
 
 	private def writeTask(task:Task):js.Dynamic	=

@@ -15,7 +15,7 @@ object Controller {
 				case Action.Boot	=>
 					// TODO ugly side effects
 
-					handles collect	{ case Handle.CreateText(focus) => focus } foreach runNow
+					handles.collect	{ case Handle.CreateText(focus) => focus }.foreach(runNow)
 
 					Persistence.load() getOrElse model
 
@@ -60,7 +60,7 @@ object Controller {
 					// TODO ugly side effects
 
 					// NOTE timer delay is necessary because the element is still display:none here
-					handles collect	{ case Handle.Task(`id`, TaskHandle.Editor(focus)) => focus } foreach runLater
+					handles.collect	{ case Handle.Task(`id`, TaskHandle.Editor(focus)) => focus }.foreach(runLater)
 
 					execute(model) {
 						oneTask(id).lift(TaskData.M.editing.set(true) `andThen` previewFromText)
