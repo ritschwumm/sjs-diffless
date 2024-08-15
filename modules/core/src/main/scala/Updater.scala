@@ -13,7 +13,7 @@ abstract class Updater[-M,+H] { self =>
 
 	def adapt[MM,HH](modelFunc:MM=>M, handleFunc:H=>HH):Updater[MM,HH]	=
 		new Updater[MM,HH] {
-			def update(value:MM):Vector[Node]	= self update modelFunc(value)
+			def update(value:MM):Vector[Node]	= self.update(modelFunc(value))
 			def active:Vector[Node]				= self.active
 			def handles:Vector[HH]				= self.handles map handleFunc
 		}
@@ -21,21 +21,21 @@ abstract class Updater[-M,+H] { self =>
 	// TODO auto-cache?
 	def adaptModel[MM](func:MM=>M):Updater[MM,H]	=
 		new Updater[MM,H] {
-			def update(value:MM):Vector[Node]	= self update func(value)
+			def update(value:MM):Vector[Node]	= self.update(func(value))
 			def active:Vector[Node]				= self.active
 			def handles:Vector[H]				= self.handles
 		}
 
 	def adaptHandle[HH](func:H=>HH):Updater[M,HH]	=
 		new Updater[M,HH] {
-			def update(value:M):Vector[Node]	= self update value
+			def update(value:M):Vector[Node]	= self.update(value)
 			def active:Vector[Node]				= self.active
 			def handles:Vector[HH]				= self.handles map func
 		}
 
 	def dropHandle:Updater[M,Nothing]	=
 		new Updater[M,Nothing] {
-			def update(value:M):Vector[Node]	= self update value
+			def update(value:M):Vector[Node]	= self.update(value)
 			def active:Vector[Node]				= self.active
 			def handles:Vector[Nothing]			= Vector.empty
 		}
@@ -70,7 +70,7 @@ abstract class Updater[-M,+H] { self =>
 			def update(value:M):Vector[Node]	=
 				if (value != old) {
 					old		= value
-					val expired	= self update value
+					val expired	= self.update(value)
 					active	= self.active
 					handles	= self.handles
 					expired
@@ -90,7 +90,7 @@ abstract class Updater[-M,+H] { self =>
 	def lively[MM](alive:MM=>Boolean, func:MM=>M):Updater[MM,H]	=
 		new Updater[MM,H] {
 			def update(value:MM):Vector[Node]	=
-					if (alive(value))	self update func(value)
+					if (alive(value))	self.update(func(value))
 					else				Vector.empty
 			def active:Vector[Node]	= self.active
 			def handles:Vector[H]	= self.handles

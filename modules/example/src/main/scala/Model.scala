@@ -9,9 +9,9 @@ object Model {
 		)
 
 	object M {
-		val creating:Mod[Model,String]			= Mod { func => model => model copy (creating	= func(model.creating))	}
-		val tasks:Mod[Model,Vector[Task]]		= Mod { func => model => model copy (tasks		= func(model.tasks))	}
-		val filter:Mod[Model,Option[Boolean]]	= Mod { func => model => model copy (filter		= func(model.filter))	}
+		val creating:Mod[Model,String]			= Mod { func => model => model.copy(creating	= func(model.creating))	}
+		val tasks:Mod[Model,Vector[Task]]		= Mod { func => model => model.copy(tasks		= func(model.tasks))	}
+		val filter:Mod[Model,Option[Boolean]]	= Mod { func => model => model.copy(filter		= func(model.filter))	}
 	}
 }
 

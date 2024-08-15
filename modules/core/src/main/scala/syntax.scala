@@ -16,7 +16,7 @@ object syntax {
 
 	extension[K](peer:K) {
 		/** make the value of this attribute of the surrounding html element dynamically change based on the model */
-		def ~=[N,M,MM](func:M=>MM)(using ev:AttributeAccess[K,N,MM]):Attribute[N,M]	= Attribute	.dynamic	(ev.setter)	adaptModel func
+		def ~=[N,M,MM](func:M=>MM)(using ev:AttributeAccess[K,N,MM]):Attribute[N,M]	= Attribute	.dynamic	(ev.setter).adaptModel(func)
 		/** set the value of this attribute of the surrounding html element to a fixed value */
 		def :=[N,M,MM](value:MM)(using ev:AttributeAccess[K,N,MM]):Attribute[N,M]	= Attribute	.static  (ev.setter, value)
 

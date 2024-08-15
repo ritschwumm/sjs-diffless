@@ -2,13 +2,14 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 inThisBuild(Seq(
 	organization	:= "de.djini",
-	version			:= "0.45.0",
+	version			:= "0.46.0",
 
 	scalaVersion	:= "3.3.0",
 	scalacOptions	++= Seq(
 		"-feature",
 		"-deprecation",
 		"-unchecked",
+		"-source:future",
 		"-Wunused:all",
 		"-Xfatal-warnings",
 		"-Ykind-projector:underscores",

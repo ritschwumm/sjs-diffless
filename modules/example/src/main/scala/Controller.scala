@@ -24,13 +24,13 @@ object Controller {
 						dependent(
 							_.allCompleted,
 							(current:Boolean) => {
-								Model.M.tasks >=> Mod.each >=> Task.M.data >=> TaskData.M.completed set !current
+								(Model.M.tasks >=> Mod.each >=> Task.M.data >=> TaskData.M.completed).set(!current)
 							}
 						)
 					}
 				case Action.Creating(text)	=>
 					execute(model) {
-						Model.M.creating set text
+						Model.M.creating.set(text)
 					}
 
 				case Action.Create	=>
@@ -41,8 +41,8 @@ object Controller {
 								else							None
 							},
 							(taskOpt:Option[Task]) => {
-								(Model.M.tasks lift (_ ++ taskOpt.toVector)) andThen
-								(Model.M.creating set "")
+								Model.M.tasks.lift(_ ++ taskOpt.toVector) `andThen`
+								Model.M.creating.set("")
 							}
 						)
 					}
@@ -53,7 +53,7 @@ object Controller {
 
 				case Action.Task(id, TaskAction.Toggle)	=>
 					execute(model) {
-						oneTask(id) >=> TaskData.M.completed lift (!_)
+						(oneTask(id) >=> TaskData.M.completed).lift(!_)
 					}
 
 				case Action.Task(id, TaskAction.Edit) =>
@@ -63,42 +63,42 @@ object Controller {
 					handles collect	{ case Handle.Task(`id`, TaskHandle.Editor(focus)) => focus } foreach runLater
 
 					execute(model) {
-						oneTask(id) lift ((TaskData.M.editing set true) andThen previewFromText)
+						oneTask(id).lift(TaskData.M.editing.set(true) `andThen` previewFromText)
 					}
 
 				case Action.Task(id, TaskAction.Change(preview))	=>
 					execute(model) {
-						oneTask(id) >=> TaskData.M.preview set preview
+						(oneTask(id) >=> TaskData.M.preview).set(preview)
 					}
 
 				case Action.Task(id, TaskAction.Commit)	=>
 					execute(model) {
-						oneTask(id) lift ((TaskData.M.editing set false) andThen textFromPreview)
+						oneTask(id).lift(TaskData.M.editing.set(false) `andThen` textFromPreview)
 					}
 
 				case Action.Task(id, TaskAction.Rollback) =>
 					execute(model) {
-						oneTask(id) >=> TaskData.M.editing set false
+						(oneTask(id) >=> TaskData.M.editing).set(false)
 					}
 
 				case Action.Task(id, TaskAction.Remove)	=>
 					execute(model) {
-						Model.M.tasks lift (_ filter { _.id != id })
+						Model.M.tasks.lift(_.filter(_.id != id))
 					}
 
 				case Action.Filter(state)	=>
 					execute(model) {
-						Model.M.filter set state
+						Model.M.filter.set(state)
 					}
 
 				case Action.Clear	=>
 					execute(model) {
-						Model.M.tasks lift (_ filter { !_.data.completed })
+						Model.M.tasks.lift (_.filter(!_.data.completed))
 					}
 			}
 
 		// BETTER only when the model really changed
-		Persistence save next
+		Persistence.save(next)
 
 		next -> EventFlow.permit
 	}
@@ -106,11 +106,11 @@ object Controller {
 	private def execute(model:Model)(func:Model=>Model):Model	=
 		func(model)
 
-	private val previewFromText:TaskData=>TaskData	= task => task copy (preview	= task.text)
-	private val textFromPreview:TaskData=>TaskData	= task => task copy (text		= task.preview)
+	private val previewFromText:TaskData=>TaskData	= task => task.copy(preview	= task.text)
+	private val textFromPreview:TaskData=>TaskData	= task => task.copy(text	= task.preview)
 
 	private def oneTask(id:TaskId):Mod[Model,TaskData]	=
-		Model.M.tasks >=> Mod.each >=> (Task.M whereId id) >=> Task.M.data
+		Model.M.tasks >=> Mod.each >=> Task.M.whereId(id) >=> Task.M.data
 
 	private def newTask(text:String):Task	=
 		Task(

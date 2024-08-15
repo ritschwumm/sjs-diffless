@@ -15,7 +15,7 @@ object Emit {
 				(ev:E) => {
 					val action		= handler(target, ev)
 					val eventFlow	= dispatch(action)
-					eventFlow applyTo ev
+					eventFlow.applyTo(ev)
 				}
 			)
 		}
