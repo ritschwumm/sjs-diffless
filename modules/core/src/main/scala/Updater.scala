@@ -15,7 +15,7 @@ abstract class Updater[-M,+H] { self =>
 		new Updater[MM,HH] {
 			def update(value:MM):Vector[Node]	= self.update(modelFunc(value))
 			def active:Vector[Node]				= self.active
-			def handles:Vector[HH]				= self.handles map handleFunc
+			def handles:Vector[HH]				= self.handles.map(handleFunc)
 		}
 
 	// TODO auto-cache?
@@ -30,7 +30,7 @@ abstract class Updater[-M,+H] { self =>
 		new Updater[M,HH] {
 			def update(value:M):Vector[Node]	= self.update(value)
 			def active:Vector[Node]				= self.active
-			def handles:Vector[HH]				= self.handles map func
+			def handles:Vector[HH]				= self.handles.map(func)
 		}
 
 	def dropHandle:Updater[M,Nothing]	=
@@ -43,7 +43,7 @@ abstract class Updater[-M,+H] { self =>
 	/*
 	def modifyHandles[HH](func:Vector[H]=>Vector[HH]):Updater[M,HH]	=
 		new Updater[M,HH] {
-			def update(value:M):Vector[Node]	= self update value
+			def update(value:M):Vector[Node]	= self.update(value)
 			def active:Vector[Node]				= self.active
 			def handle:Vector[HH]				= func(self.handle)
 		}
@@ -55,10 +55,10 @@ abstract class Updater[-M,+H] { self =>
 			var model:MM	= initial
 			def update(value:MM):Vector[Node]	= {
 				model	= value
-				self update value
+				self.update(value)
 			}
 			def active:Vector[Node]				= self.active
-			def handles:Vector[HH]				= self.handles map { it => func(model, it) }
+			def handles:Vector[HH]				= self.handles.map { it => func(model, it) }
 		}
 	*/
 

@@ -16,6 +16,6 @@ object derived {
 
 	val classSet:Attribute[HTMLElement,Set[String]]	=
 		Attribute.dynamic[HTMLElement,Set[String]] { (node, value) =>
-			node.className = value mkString " "
+			node.className = value.mkString(" ")
 		}
 }

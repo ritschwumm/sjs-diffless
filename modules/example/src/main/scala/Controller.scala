@@ -17,7 +17,7 @@ object Controller {
 
 					handles.collect	{ case Handle.CreateText(focus) => focus }.foreach(runNow)
 
-					Persistence.load() getOrElse model
+					Persistence.load().getOrElse(model)
 
 				case Action.Complete	=>
 					execute(model) {

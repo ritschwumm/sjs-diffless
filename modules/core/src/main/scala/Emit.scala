@@ -26,6 +26,6 @@ final case class Emit[-N,+A](setup:(N,A=>EventFlow) => Unit) extends Child[N,Any
 	// TODO do we need this?
 	def mapAction[AA](func:A=>AA):Emit[N,AA]	=
 		Emit { (target, dispatch) =>
-			setup(target, func andThen dispatch)
+			setup(target, func `andThen` dispatch)
 		}
 }

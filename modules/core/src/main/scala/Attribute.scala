@@ -52,7 +52,7 @@ extends Child[N,M,Nothing,Nothing] {
 			requiresUpdates	= requiresUpdates,
 			setup	= (target, initial) => {
 				val base	= setup(target, func(initial))
-				if (requiresUpdates)	func andThen base
+				if (requiresUpdates)	func `andThen` base
 				else					Attribute.ignoring
 			}
 		)

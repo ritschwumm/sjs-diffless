@@ -31,7 +31,7 @@ final case class Model(
 		tasks.forall(_.data.completed)
 
 	val visible:Vector[Task]	=
-		tasks filter { item =>
+		tasks.filter { item =>
 			filter.forall(item.data.completed == _)
 		}
 }

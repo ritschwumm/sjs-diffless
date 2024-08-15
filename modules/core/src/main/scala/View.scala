@@ -7,10 +7,10 @@ object View {
 
 	/** this is used to support the tag dsl */
 	def elementFromChildren[N<:Node,M,A,H](tag:Tag[N], children:Vector[Child[N,M,A,H]]):View[M,A,H] = {
-		val attributes:Vector[Attribute[N,M]]	= children collect { case x:Attribute[N,M]	=> x }
-		val emits:Vector[Emit[N,A]]				= children collect { case x:Emit[N,A]		=> x }
-		val inners:Vector[View[M,A,H]]			= children collect { case x:View[M,A,H]		=> x }
-		val attachments:Vector[Attachment[N,H]]	= children collect { case x:Attachment[N,H]		=> x }
+		val attributes:Vector[Attribute[N,M]]	= children.collect { case x:Attribute[N,M]	=> x }
+		val emits:Vector[Emit[N,A]]				= children.collect { case x:Emit[N,A]		=> x }
+		val inners:Vector[View[M,A,H]]			= children.collect { case x:View[M,A,H]		=> x }
+		val attachments:Vector[Attachment[N,H]]	= children.collect { case x:Attachment[N,H]		=> x }
 		element(
 			tag			= tag,
 			attributes	= attributes,
@@ -40,7 +40,7 @@ object View {
 		{
 			// NOTE maybe converting attrs to an array would make sense here
 
-			val requiresUpdates	= inner.requiresUpdates || (attributes exists (_.requiresUpdates))
+			val requiresUpdates	= inner.requiresUpdates || attributes.exists(_.requiresUpdates)
 			View(
 				requiresUpdates	= requiresUpdates,
 				instableNodes	= false,
@@ -48,10 +48,10 @@ object View {
 					new Updater[M,H] {
 						private val node	= tag.create()
 
-						val selfHandles:Vector[H]	= attachments map (_ create node)
+						val selfHandles:Vector[H]	= attachments.map(_.create(node))
 
 						private val attributeUpdates:Vector[M=>Unit]	=
-							attributes flatMap { attr =>
+							attributes.flatMap { attr =>
 								val base	= attr.setup(node, initial)
 								// NOTE this check is important, calling the updater on a static attribute will fail at runtime
 								if (attr.requiresUpdates)	Some(base)
@@ -59,12 +59,12 @@ object View {
 							}
 
 						// attach emitters, they don't get updated
-						emits foreach { _.setup(node, dispatch) }
+						emits.foreach { _.setup(node, dispatch) }
 
 						private val innerUpdater	= inner.setup(initial, dispatch)
 
 						// append child nodes
-						innerUpdater.active foreach node.appendChild
+						innerUpdater.active.foreach(node.appendChild)
 
 						private var old:M	= initial
 
@@ -75,7 +75,7 @@ object View {
 										old	= value
 
 										// update attributes
-										attributeUpdates foreach (_ apply value)
+										attributeUpdates.foreach(_.apply(value))
 
 										if (inner.requiresUpdates) {
 											// update content
@@ -83,12 +83,12 @@ object View {
 
 											if (inner.instableNodes) {
 												// remove vanished child nodes
-												innerExpired foreach node.removeChild
+												innerExpired.foreach(node.removeChild)
 
 												// insert nodes in order, skip over existing ones
 												val todo	= innerUpdater.active
 												var ptr		= node.firstChild
-												todo foreach { childNode =>
+												todo.foreach { childNode =>
 													if (childNode eq ptr) {
 														ptr	= ptr.nextSibling
 													}
@@ -139,17 +139,17 @@ object View {
 		if		(children.isEmpty)		empty
 		else if	(children.size == 1)	children.head
 		else {
-			val requiresUpdates	= children exists (_.requiresUpdates)
-			val instableNodes	= children exists (_.instableNodes)
+			val requiresUpdates	= children.exists(_.requiresUpdates)
+			val instableNodes	= children.exists(_.instableNodes)
 			View(
 				requiresUpdates	= requiresUpdates,
 				instableNodes	= instableNodes,
 				setup	= (initial, dispatch) => {
 					new Updater[M,H] {
-						private val childUpdaters:Vector[Updater[M,H]]	= children map (_.setup(initial, dispatch))
+						private val childUpdaters:Vector[Updater[M,H]]	= children.map(_.setup(initial, dispatch))
 
-						var active:Vector[Node]	= childUpdaters flatMap (_.active)
-						var handles:Vector[H]	= childUpdaters flatMap (_.handles)
+						var active:Vector[Node]	= childUpdaters.flatMap(_.active)
+						var handles:Vector[H]	= childUpdaters.flatMap(_.handles)
 
 						private var old	= initial
 
@@ -157,13 +157,13 @@ object View {
 								if (requiresUpdates && value != old) {
 									old	= value
 
-									val expired	= childUpdaters flatMap (_.update(value))
+									val expired	= childUpdaters.flatMap(_.update(value))
 
 									if (instableNodes) {
-										active	= childUpdaters flatMap (_.active)
+										active	= childUpdaters.flatMap(_.active)
 									}
 
-									handles	= childUpdaters flatMap (_.handles)
+									handles	= childUpdaters.flatMap(_.handles)
 									expired
 								}
 								else {
@@ -184,10 +184,10 @@ object View {
 			instableNodes	= true,
 			setup	= (initial, dispatch) => {
 				new Updater[Vector[M],H] {
-					private var childUpdaters:Vector[Updater[M,H]]	= initial map { it => item.setup(it, dispatch) }
+					private var childUpdaters:Vector[Updater[M,H]]	= initial.map { it => item.setup(it, dispatch) }
 
-					var active:Vector[Node]	= childUpdaters flatMap (_.active)
-					var handles:Vector[H]	= childUpdaters flatMap (_.handles)
+					var active:Vector[Node]	= childUpdaters.flatMap(_.active)
+					var handles:Vector[H]	= childUpdaters.flatMap(_.handles)
 
 					private var old	= initial
 
@@ -201,26 +201,26 @@ object View {
 								if (newSize > oldSize) {
 									// add appeared children
 									val expired	= childUpdaters.zip(value).flatMap { (u,v) => u.update(v) }
-									val fresh	= (oldSize until newSize).toVector map { idx => item.setup(value(idx), dispatch) }
+									val fresh	= oldSize.until(newSize).toVector.map { idx => item.setup(value(idx), dispatch) }
 									childUpdaters	++= fresh
-									active	= childUpdaters flatMap (_.active)
-									handles	= childUpdaters flatMap (_.handles)
+									active	= childUpdaters.flatMap(_.active)
+									handles	= childUpdaters.flatMap(_.handles)
 									expired
 								}
 								else if (newSize < oldSize) {
 									// remove vanished children
-									val (keep, remove)	= childUpdaters splitAt newSize
+									val (keep, remove)	= childUpdaters.splitAt(newSize)
 									childUpdaters	= keep
 									val expired	= childUpdaters.zip(value).flatMap { (u,v) => u.update(v) }
-									active	= childUpdaters flatMap (_.active)
-									handles	= childUpdaters flatMap (_.handles)
-									expired	++ (remove flatMap (_.active))
+									active	= childUpdaters.flatMap(_.active)
+									handles	= childUpdaters.flatMap(_.handles)
+									expired	++ remove.flatMap(_.active)
 								}
 								else {
 									// no size change
 									val expired	= childUpdaters.zip(value).flatMap { (u,v) => u.update(v) }
-									active	= childUpdaters flatMap (_.active)
-									handles	= childUpdaters flatMap (_.handles)
+									active	= childUpdaters.flatMap(_.active)
+									handles	= childUpdaters.flatMap(_.handles)
 									expired
 								}
 							}
@@ -233,8 +233,8 @@ object View {
 
 	/** convenience function for keyed where the key can be derived from the item */
 	def keyedBy[M,A,H](key:M=>ViewKey, itemView:View[M,A,H]):View[Vector[M],A,H]	=
-		keyed(itemView) adaptModel { items =>
-			items map { item =>
+		keyed(itemView).adaptModel { items =>
+			items.map { item =>
 				key(item) -> item
 			}
 		}
@@ -250,10 +250,10 @@ object View {
 			instableNodes	= true,
 			setup	= (initial, dispatch) => {
 				new Updater[Vector[(ViewKey,M)],H] {
-					private var childOuts:Vector[(ViewKey,Updater[M,H])]	= initial map { (k,v) => k -> (item.setup(v, dispatch)) }
+					private var childOuts:Vector[(ViewKey,Updater[M,H])]	= initial.map { (k,v) => k -> (item.setup(v, dispatch)) }
 
-					var active:Vector[Node]	= childOuts flatMap { (_, updater) => updater.active }
-					var handles:Vector[H]	= childOuts flatMap { (_, updater) => updater.handles }
+					var active:Vector[Node]	= childOuts.flatMap { (_, updater) => updater.active }
+					var handles:Vector[H]	= childOuts.flatMap { (_, updater) => updater.handles }
 
 					private var old:Vector[(ViewKey,M)]	= initial
 
@@ -264,13 +264,13 @@ object View {
 
 								val newKeys:Set[ViewKey]	= value.map{ (key, _) => key }.toSet
 
-								val (keep, remove)	= childOuts partition { (key, _) => newKeys contains key }
-								var expired:Vector[Node]	= remove flatMap { (_, updater) => updater.active }
+								val (keep, remove)	= childOuts.partition { (key, _) => newKeys.contains(key) }
+								var expired:Vector[Node]	= remove.flatMap { (_, updater) => updater.active }
 
 								val keepUpdaters:Map[ViewKey,Updater[M,H]]	= keep.toMap
 								childOuts	=
-										value map { (key, part) =>
-											keepUpdaters get key match {
+										value.map { (key, part) =>
+											keepUpdaters.get(key) match {
 												case Some(old)	=>
 													expired	++= old.update(part)
 													key -> old
@@ -280,8 +280,8 @@ object View {
 											}
 										}
 
-								active	= childOuts flatMap { (_, updater) => updater.active }
-								handles	= childOuts flatMap { (_, updater) => updater.handles }
+								active	= childOuts.flatMap { (_, updater) => updater.active }
+								handles	= childOuts.flatMap { (_, updater) => updater.handles }
 
 								expired
 							}
@@ -370,7 +370,7 @@ extends Child[Any,M,A,H] { self =>
 
 	def adapt[MM,AA,HH](model:MM=>M, action:A=>AA, handle:H=>HH):View[MM,AA,HH]	=
 		withSetup[MM,AA,HH] { (initial, dispatch) =>
-			setup(model(initial), action andThen dispatch).adapt(model, handle)
+			setup(model(initial), action `andThen` dispatch).adapt(model, handle)
 		}
 
 	// TODO auto-cache?
@@ -383,7 +383,7 @@ extends Child[Any,M,A,H] { self =>
 	def adaptAction[AA](func:A=>AA):View[M,AA,H]	=
 		//adapt(identity, action, identity)
 		withSetup[M,AA,H] { (initial, dispatch) =>
-			setup(initial, func andThen dispatch)
+			setup(initial, func `andThen` dispatch)
 		}
 
 	def adaptHandle[HH](handle:H=>HH):View[M,A,HH]	=
@@ -395,13 +395,13 @@ extends Child[Any,M,A,H] { self =>
 	def adaptModelAndAction[MM,AA](model:MM=>M, action:A=>AA):View[MM,AA,H]	=
 		//adapt(model, action, identity)
 		withSetup[MM,AA,H] { (initial, dispatch) =>
-			setup(model(initial), action andThen dispatch).adaptModel(model)
+			setup(model(initial), action `andThen` dispatch).adaptModel(model)
 		}
 
 	def adaptActionAndHandle[AA,HH](action:A=>AA, handle:H=>HH):View[M,AA,HH]	=
 		//adapt(identity, action, handle)
 		withSetup[M,AA,HH] { (initial, dispatch) =>
-			setup(initial, action andThen dispatch).adaptHandle(handle)
+			setup(initial, action `andThen` dispatch).adaptHandle(handle)
 		}
 
 	/** removes all attached handles */
@@ -413,7 +413,7 @@ extends Child[Any,M,A,H] { self =>
 	/*
 	def modifyHandles[HH](func:Vector[H]=>Vector[HH]):View[M,A,HH]	=
 		withSetup[M,A,HH] { (initial, dispatch) =>
-			self setup (initial, dispatch) modifyHandles func
+			self.setup(initial, dispatch).modifyHandles(func)
 		}
 	*/
 
@@ -438,7 +438,7 @@ extends Child[Any,M,A,H] { self =>
 						innerUpdater.update(value._2)
 					}
 					def active:Vector[Node]	= innerUpdater.active
-					def handles:Vector[HH]	= innerUpdater.handles map { handle => handleFunc(context, handle) }
+					def handles:Vector[HH]	= innerUpdater.handles.map { handle => handleFunc(context, handle) }
 				}
 			}
 		)
@@ -521,7 +521,7 @@ extends Child[Any,M,A,H] { self =>
 
 		val innerUpdater	= setup(initial, dispatch)
 
-		innerUpdater.active foreach node.appendChild
+		innerUpdater.active.foreach(node.appendChild)
 
 		var old	= initial
 
@@ -536,12 +536,12 @@ extends Child[Any,M,A,H] { self =>
 
 						if (instableNodes) {
 							// remove vanished child nodes
-							innerExpired foreach node.removeChild
+							innerExpired.foreach(node.removeChild)
 
 							// insert nodes in order, skip over existing ones
 							val todo	= innerUpdater.active
 							var ptr		= node.firstChild
-							todo foreach { childNode =>
+							todo.foreach { childNode =>
 								if (childNode eq ptr) {
 									ptr	= ptr.nextSibling
 								}

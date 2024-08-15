@@ -25,7 +25,7 @@ object Views {
 			className	:= "complete",
 			`type`		:= "checkbox",
 			visible		~= (_.nonEmpty),
-			checked		~= (_ forall (_.data.completed)),
+			checked		~= (_.forall(_.data.completed)),
 			onInput		|= { (target, event) => Action.Complete }
 		)
 
@@ -52,7 +52,7 @@ object Views {
 
 	lazy val taskItemViewEmbed:View[Vector[Task],Action,Handle]	= {
 		val keyify:Task=>(String,Task)	= it => it.id.value -> it
-		keyed(taskItemEmbeddedView)(_ map keyify)
+		keyed(taskItemEmbeddedView)(_.map(keyify))
 	}
 
 	lazy val taskItemEmbeddedView:View[Task,Action,Handle]	=
